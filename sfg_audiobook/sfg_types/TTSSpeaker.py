@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
-@dataclass
-class TTSSpeaker:
+
+class TTSSpeaker(BaseModel):
     id: str  # Unique id of the speaker
     description: str  # Speaker voice description

@@ -7,8 +7,9 @@ name = "sfg_audiobook"
 version = "0.0.1"
 dependencies = [
     "openai",
-    'importlib-metadata; python_version>"3.10"',
+    "pydantic",
+    'importlib-metadata; python_version>"3.12"',
 ]
 
 [project.scripts]
-cli-name = "sfg_audiobook.mymodule:some_func"  # TODO
+sfg_audiobook = "sfg_audiobook.cli:run_from_cli"

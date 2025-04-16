@@ -1,0 +1,1 @@
+from .DummyCharacterExtractorComponent import DummyCharacterExtractorComponent
