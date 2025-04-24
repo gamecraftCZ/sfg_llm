@@ -8,6 +8,9 @@ version = "0.0.1"
 dependencies = [
     "openai",
     "pydantic",
+    "jinja2",
+    "litellm",
+    "tqdm",
     'importlib-metadata; python_version>"3.12"',
 ]
 

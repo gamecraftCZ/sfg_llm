@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from common.ComponentParserError import ComponentParserError
+from common.errors import ComponentParserError
 from components.ComponentsRegister import ComponentsRegister
 from sfg_types import PipelineData
 from structure.AbstractComponent import AbstractComponent

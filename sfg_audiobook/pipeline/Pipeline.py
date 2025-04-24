@@ -1,3 +1,5 @@
+from common.errors import ComponentParserError
+from components import ComponentParser
 from sfg_types import PipelineData
 from structure import AbstractComponent
 
@@ -26,3 +28,19 @@ class Pipeline:
         print("PIPELINE finished.")
         # Return result
         return self._data
+
+    @staticmethod
+    def from_component_strings(component_strings: list[str]) -> 'Pipeline':
+        """
+        Create a pipeline from a list of component strings.
+        """
+        # Parse components
+        components = []
+        for component_string in component_strings:
+            components.append(ComponentParser.parse_component_string(component_string))
+
+        # Name components
+        for i, component in enumerate(components):
+            component.set_name(f"{component.__class__.__name__}_{i}")
+
+        return Pipeline(components)

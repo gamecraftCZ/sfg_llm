@@ -1,0 +1,78 @@
+Extract ALL THE CHARACTERS from a full-length book and provide their names, genders (if inferable from the text), and short descriptions.
+
+Ensure that ALL CHARACTERS ARE INCLUDED, from main to those appearing only once, and provide as much detail as is available in the text. EVERY CHARACTER, EVEN IF APPEARING ONLY ONCE, LIKE A BOY ON A STREET THAT ONLY EVER SPEAKS ONCE IN THE BOOK SHOULD BE MENTIONED.
+
+# Steps
+
+1. **Character Identification**: Read through the book and identify every character mentioned. Pay attention to character list sections, dialogue tags, and narrative references.
+
+2. **Gender Inference**: For each character, infer gender from pronouns and context if possible. Indicate if gender could not be determined.
+
+3. **Character Description**: Write a short description for each character, summarizing key attributes, roles, or memorable actions in the book.
+
+4. **Verification**: Review the list to ensure that all characters are included and their details are accurate.
+
+# Output Format
+
+The output should be a list of characters with the following JSON structure:
+
+```json
+[
+{
+"name": "Character Name",
+"identifier": "Unique character identifier, preferably NAME_IN_UPPERCASE using underscores instead of spaces",
+"type": "Main and support characters are just a few main characters of the story. They act and speak a lot in the book. Minor characters are these, that you only meet ocasionaly and dont have any special meaning for the story.",
+"gender": "male" or "female" or "unknown",
+"personality": "A short description of the character personality. One to five sentences."
+}
+// Repeat for additional characters
+]
+```
+
+# Examples
+
+**Example 1**
+
+*Input:*
+<text>
+Chapter 1
+...
+</text>
+
+*Output:*
+```json
+[
+{
+"name": "John Doe",
+"identifier": "JOHN_DOE"
+"type": "main",
+"gender": "male",
+"personality": "A main character. Detective solving mysteries about his lost family. He is serious and bitter."
+},
+{
+"name": "Unknown Child 1",
+"identifier": "UNKNOWN_CHILD_1"
+"type": "minor",
+"gender": "male",
+"personality": "A happy child."
+},
+{
+"name": "Jane Smith",
+"identifier": "JANE_SMITH",
+"type": "support",
+"gender": "female",
+"personality": "Helps the detective warmly."
+},
+{
+"name": "Unknown Child 2",
+"identifier": "UNKNOWN_CHILD_2",
+"type": "minor",
+"gender": "unknown"
+"personality": "Sad."
+}
+]
+```
+
+# Notes
+- If a character name is not explicitly mentioned or is unclear, use a descriptive placeholder.
+- Ensure accuracy by cross-referencing character mentions throughout the book.

@@ -2,7 +2,8 @@ import argparse
 import json
 import sys
 
-from common.ComponentParserError import ComponentParserError
+from common.errors import ComponentParserError
+from components import ComponentParser
 from components.ComponentsRegister import ComponentsRegister
 from pipeline import Pipeline
 from sfg_types import PipelineData
@@ -51,18 +52,19 @@ def run_from_cli():
     if args.pipeline == "custom":
         if not args.component:
             parser.error("At least one --component must be specified for a custom pipeline")
-        components = [parse_component_string(component_string) for i, component_string in enumerate(args.component)]
-        for i, component in enumerate(components):
-            component.set_name(f"{component.__class__.__name__}_{i}")
+        try:
+            pipeline = Pipeline.from_component_strings(args.component)
+        except ComponentParserError as e:
+            print(e)
+            sys.exit(1)
 
     else:
         # TODO Load predefined pipelines
         print(f"Pipeline '{args.pipeline}' is not implemented yet.")
-        components = []
+        pipeline = Pipeline([])
         sys.exit(1)
 
     # Run parsed pipeline
-    pipeline = Pipeline(components)
     results = pipeline.setup_and_run(PipelineData())
 
 
@@ -74,32 +76,6 @@ def list_available_components():
     print(f"Available components ({len(components)} total):\n")
     for name, component in components.items():
         print(f"{name}:\n\t{component.get_help()}\n")
-
-def parse_component_string(component_string: str) -> AbstractComponent:
-    """
-    Parse a component string into instantiated component.
-    """
-    try:
-        if "[" in component_string and "]" in component_string:
-            registered_name, args_str = component_string.split("[", 1)
-            args_str = args_str.rstrip("]")
-            try:
-                args = dict(arg.split("=") for arg in args_str.split(","))
-            except ValueError:
-                raise ComponentParserError(f"Invalid argument format in '{args_str}'. Expected 'arg1=val1,arg2=val2,...'")
-        else:
-            registered_name = component_string
-            args = {}
-
-        ComponentClass = ComponentsRegister.get_component(registered_name)
-        if ComponentClass is None:
-            raise ComponentParserError(f"Component '{registered_name}' not found in registered components. Available components: {ComponentsRegister.get_all_components().keys()}")
-
-        component = ComponentClass(args)
-        return component
-    except ComponentParserError as e:
-        print(f"Error parsing component string '{component_string}': {e}", file=sys.stderr)
-        sys.exit(1)
 
 
 if __name__ == "__main__":
