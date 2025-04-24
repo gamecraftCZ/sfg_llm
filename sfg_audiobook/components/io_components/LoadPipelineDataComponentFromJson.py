@@ -1,6 +1,6 @@
-from common.ComponentParserError import ComponentParserError, ComponentError
+from common.errors import ComponentParserError, ComponentError
 from components.ComponentsRegister import ComponentsRegister
-from sfg_types import Character, PipelineData
+from sfg_types import PipelineData
 from structure.AbstractComponent import AbstractComponent
 
 
@@ -27,7 +27,8 @@ class LoadPipelineDataComponentFromJson(AbstractComponent):
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 json_text = f.read()
-                data.model_validate_json(json_text)
+                loaded_data = PipelineData.model_validate_json(json_text)
+                data.__dict__.update(loaded_data.__dict__)
         except Exception as e:
             raise ComponentError(self, f"Error: {e}\nFailed to load pipeline data from {filepath}. Error above.")
 
