@@ -71,16 +71,13 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         )
 
         # Process the response
-        content = res
-        # print(f"Response: {content}")
-
         try:
             response_json = res.choices[0].model_extra["message"].content
             parsed_response = TargetModel.model_validate_json(response_json)
             return parsed_response
         except json.JSONDecodeError as e:
             print(f"Error parsing character data: {e}")
-            print(f"Response: {content}")
+            print(f"Response: {res}")
             return None
 
 

@@ -10,7 +10,7 @@ class CharactersList(BaseModel):
 
 class LLMCharacterExtractor(AbstractStructuredLLMComponent):
     """
-    Use LLMs with Jinja2 prompt templates to extract and attribute quotations in the text.
+    Use LLMs with Jinja2 prompt templates to extract all characters from the text.
     This component uses litellm to support many different LLM backends.
     """
 
@@ -19,7 +19,7 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
 
     @staticmethod
     def get_help() -> str:
-        return f"""Uses LLMs with Jinja2 prompt templates to extract and attribute quotations in the text.
+        return f"""Uses LLMs with Jinja2 prompt templates to extract all characters from the text.
 {LLMCharacterExtractor.get_attributes_help_text()}
 """
 
@@ -29,7 +29,7 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
     def run(self, data: PipelineData):
         characters_list = self.predict(data, CharactersList)
         if characters_list is None:
-            raise ValueError("Extracted characters list is None. Quotation attribution failed.")
+            raise ValueError("Extracted characters list is None. Character extraction failed.")
 
         data.characters = characters_list.characters
 

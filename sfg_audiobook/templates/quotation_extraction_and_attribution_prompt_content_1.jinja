@@ -1,0 +1,11 @@
+<text>{{ data.original_text }}</text>
+<characters>
+    {% for character in data.characters %}
+    <character>
+        <name>{{ character.name }}</name>
+        <identifier>{{ character.identifier }}</identifier>
+        <gender>{{ character.gender }}</gender>
+        <personality>{{ character.personality }}</personality>
+    </character>
+    {% endfor %}
+</characters>

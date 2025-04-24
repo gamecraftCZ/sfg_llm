@@ -4,7 +4,7 @@ from pathlib import Path
 
 from common.errors import ComponentParserError
 from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart
+from sfg_types import PipelineData, TextPart, Character
 from structure.AbstractComponent import AbstractComponent
 
 
@@ -55,8 +55,14 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
         data.additional_attributes["characters_gt"] = book.characters
         data.additional_attributes["text_as_parts_gt"] = book.text_parts
 
-        if self._params["use_gt_text"] and self._params["use_gt_text"].lower() == "true":
+        if self._params.get("use_gt_text") and self._params["use_gt_text"].lower() == "true":
             data.original_text = book.raw_text
+
+        if self._params.get("use_gt_characters") and self._params["use_gt_characters"].lower() == "true":
+            data.characters = [Character(name=iden, identifier=iden) for iden in book.characters]
+
+        if self._params.get("use_gt_text_as_parts") and self._params["use_gt_text_as_parts"].lower() == "true":
+            data.text_as_parts = book.text_parts
 
     @staticmethod
     def list_litbank_books(litbank_repo_path: Path) -> list[str]:
