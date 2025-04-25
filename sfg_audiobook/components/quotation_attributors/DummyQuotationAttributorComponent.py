@@ -21,7 +21,7 @@ class DummyQuotationAttributorComponent(AbstractComponent):
         words = data.original_text.split()
         chunks_count, chunk_size = len(words), 8
         word_chunks = [words[i:i + chunk_size] for i in range(0, chunks_count, chunk_size)]
-        data.text_as_parts = [TextPart(text=" ".join(chunk), type=("other" if i % 2 == 0 else "quote"))
+        data.text_as_parts = [TextPart(id=i+1, text=" ".join(chunk), type=("other" if i % 2 == 0 else "quote"))
                               for i, chunk in enumerate(word_chunks)]
 
         # Assign characters to quotes

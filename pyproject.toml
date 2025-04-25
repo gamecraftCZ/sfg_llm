@@ -11,6 +11,8 @@ dependencies = [
     "jinja2",
     "litellm",
     "tqdm",
+    "numpy",
+    "levenshtein",
     'importlib-metadata; python_version>"3.12"',
 ]
 

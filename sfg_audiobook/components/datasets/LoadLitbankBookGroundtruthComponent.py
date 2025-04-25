@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from common.errors import ComponentParserError
+from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character
 from components.ComponentsRegister import ComponentsRegister
 from sfg_types import PipelineData, TextPart, Character
 from structure.AbstractComponent import AbstractComponent
@@ -51,18 +52,27 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
         book_id = self._params["book_id"]
         book = LoadLitbankBookGroundtruthComponent.load_litbank_book(book_id, litbank_repo_path)
 
-        data.additional_attributes["original_text_gt"] = book.raw_text
+        text_parts = merge_neighbouring_text_parts_of_the_same_type_and_character(book.text_parts, separator=" ")
+        if text_parts[0].type == "other":
+            text_parts[0].text = text_parts[0].text + " "
+        if text_parts[-1].type == "other":
+            text_parts[-1].text = text_parts[-1].text + " "
+        for text_part in text_parts[1:-1]:
+            if text_part.type == "other":
+                text_part.text = " " + text_part.text + " "
+
+        data.additional_attributes["original_text_gt"] = "".join([part.text for part in text_parts])  # book.raw_text
         data.additional_attributes["characters_gt"] = book.characters
-        data.additional_attributes["text_as_parts_gt"] = book.text_parts
+        data.additional_attributes["text_as_parts_gt"] = text_parts
 
         if self._params.get("use_gt_text") and self._params["use_gt_text"].lower() == "true":
-            data.original_text = book.raw_text
+            data.original_text = data.additional_attributes["original_text_gt"]
 
         if self._params.get("use_gt_characters") and self._params["use_gt_characters"].lower() == "true":
-            data.characters = [Character(name=iden, identifier=iden) for iden in book.characters]
+            data.characters = [Character(name=iden, identifier=iden) for iden in data.additional_attributes["characters_gt"]]
 
         if self._params.get("use_gt_text_as_parts") and self._params["use_gt_text_as_parts"].lower() == "true":
-            data.text_as_parts = book.text_parts
+            data.text_as_parts = data.additional_attributes["text_as_parts_gt"]
 
     @staticmethod
     def list_litbank_books(litbank_repo_path: Path) -> list[str]:
@@ -138,6 +148,7 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
         current_type = "other"
         current_character = None
 
+        text_part_id = 1
         for sent_idx, sentence in enumerate(sentences):
             tokens = sentence.split()
 
@@ -154,10 +165,12 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
                             # Finish current part
                             if current_text:
                                 text_parts.append(TextPart(
+                                    id=text_part_id,
                                     text=current_text.strip(),
                                     type=current_type,
                                     character_identifier=current_character
                                 ))
+                                text_part_id += 1
                             # Start new "other" part
                             current_text = before_text
                             current_type = "other"
@@ -175,10 +188,12 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
                         # Finish current part
                         if current_text:
                             text_parts.append(TextPart(
+                                id=text_part_id,
                                 text=current_text.strip(),
                                 type=current_type,
                                 character_identifier=current_character
                             ))
+                            text_part_id += 1
                         # Start new quote part
                         current_text = quote_text
                         current_type = "quote"
@@ -193,10 +208,12 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
                         # Finish current quote part
                         if current_text:
                             text_parts.append(TextPart(
+                                id=text_part_id,
                                 text=current_text.strip(),
                                 type=current_type,
                                 character_identifier=current_character
                             ))
+                            text_part_id += 1
                         # Start new "other" part
                         current_text = after_text
                         current_type = "other"
@@ -210,10 +227,12 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
                     # Finish current quote part
                     if current_text:
                         text_parts.append(TextPart(
+                            id=text_part_id,
                             text=current_text.strip(),
                             type=current_type,
                             character_identifier=current_character
                         ))
+                        text_part_id += 1
                     # Start new "other" part
                     current_text = sentence
                     current_type = "other"
@@ -225,10 +244,12 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
         # Add the last part if exists
         if current_text:
             text_parts.append(TextPart(
+                id=text_part_id,
                 text=current_text.strip(),
                 type=current_type,
                 character_identifier=current_character
             ))
+            text_part_id += 1
 
         return LitBankBook(
             raw_text=book_text,  # TODO use full_book_text trimmed to book_text length as raw_text.

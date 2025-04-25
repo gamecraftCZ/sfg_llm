@@ -27,11 +27,12 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
         pass
 
     def run(self, data: PipelineData):
-        characters_list = self.predict(data, CharactersList)
+        characters_list, stats = self.predict(data, data.original_text, CharactersList)
         if characters_list is None:
             raise ValueError("Extracted characters list is None. Character extraction failed.")
 
         data.characters = characters_list.characters
+        data.additional_attributes["llm_characters_extraction_stats"] = stats
 
 
 ComponentsRegister.register_component("llm_character_extractor", LLMCharacterExtractor)

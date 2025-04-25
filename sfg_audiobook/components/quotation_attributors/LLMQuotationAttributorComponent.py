@@ -26,11 +26,16 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
         pass
 
     def run(self, data: PipelineData):
-        test_parts = self.predict(data, TextParts)
+        # TODO - add support for splitting the text into smaller parts and then recombining them
+
+        test_parts, stats = self.predict(data, data.original_text, TextParts)
         if test_parts is None:
             raise ValueError("Extracted segments list is None. Quotation attribution failed.")
 
         data.text_as_parts = test_parts.segments
+        for i, part in enumerate(data.text_as_parts):
+            part.id = i + 1  # Make sure predicted id is unique by setting new ids
+        data.additional_attributes["llm_quotation_attribution_stats"] = stats
 
 
 ComponentsRegister.register_component("llm_quotation_attributor", LLMQuotationAttributorComponent)

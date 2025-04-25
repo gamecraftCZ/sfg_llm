@@ -55,10 +55,10 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
     def setup(self, data: PipelineData):
         pass
 
-    def predict(self, data: PipelineData, TargetModel: type(BaseModel)):
+    def predict(self, data: PipelineData, text: str, TargetModel: type(BaseModel)):
         # Render the template with the text
-        system_prompt = self._system_prompt_template.render({"data": data})
-        content_prompt = self._content_prompt_template.render({"data": data})
+        system_prompt = self._system_prompt_template.render({"data": data, "text": text})
+        content_prompt = self._content_prompt_template.render({"data": data, "text": text})
 
         # Call LLM API
         res = litellm.completion(
@@ -74,11 +74,14 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         try:
             response_json = res.choices[0].model_extra["message"].content
             parsed_response = TargetModel.model_validate_json(response_json)
-            return parsed_response
+
+            stats = {}
+            return parsed_response, stats
+
         except json.JSONDecodeError as e:
             print(f"Error parsing character data: {e}")
             print(f"Response: {res}")
-            return None
+            return None, None
 
 
 # DO NOT REGISTER THIS ABSTRACT CLASS!
