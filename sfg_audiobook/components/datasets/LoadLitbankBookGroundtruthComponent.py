@@ -37,8 +37,8 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
 
     @staticmethod
     def get_help() -> str:
-        return """Loads groundtruth from litbank dataset into additional_attributes["characters_gt"] and additional_attributes["text_as_parts_gt"].
-\tAttribute: repo (str): Path to the Litbank repository.
+        return """Loads groundtruth from litbank dataset into additional_attributes["characters_gt"], additional_attributes["text_as_parts_gt"] and additional_attributes["original_text_gt"].
+\tAttribute: repo (str): Path to the cloned Litbank repository (github.com/dbamman/litbank).
 \tAttribute: book_id (str): Book ID to load.
 \tAttribute (optional): use_gt_text (bool): If True, use the groundtruth text as original text. Default is False.
 \tAttribute (optional): use_gt_characters (bool): If True, use the groundtruth characters as predicted characters. Default is False.
