@@ -1,1 +1,2 @@
 from .LoadLitbankBookGroundtruthComponent import LoadLitbankBookGroundtruthComponent
+from .LoadPDNCGroundtruthComponent import LoadPDNCGroundtruthComponent
