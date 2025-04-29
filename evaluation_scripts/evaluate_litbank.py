@@ -26,7 +26,7 @@ def process_book(book: str, litbank_repo_path: Path, attributor_params: dict[str
         "pipeline_file": data.additional_attributes["last_save_path"],
         "quotation_iou_score": data.additional_attributes["quotation_iou_score"],
         "relative_text_parts_to_gt_edit_distance": data.additional_attributes["relative_text_parts_to_gt_edit_distance"],
-        "gt_matched_quotes_accuracy": data.additional_attributes["gt_matched_quotes_accuracy"],
+        "matched_quotes_accuracy": data.additional_attributes["gt_matched_quotes_accuracy"],
         "llm_total_input_tokens": data.additional_attributes["llm_quotation_attribution_stats"]["llm_total_input_tokens"],
         "llm_total_output_tokens": data.additional_attributes["llm_quotation_attribution_stats"]["llm_total_output_tokens"],
         "pred_total_text_parts": len(data.text_as_parts),
@@ -34,7 +34,7 @@ def process_book(book: str, litbank_repo_path: Path, attributor_params: dict[str
         "pred_quote_text_parts": len([d for d in data.text_as_parts if d.type == TextPartType.QUOTE]),
         "gt_total_text_parts": len(data.additional_attributes["text_as_parts_gt"]),
         "gt_other_text_parts": len([d for d in data.additional_attributes["text_as_parts_gt"] if d.type == TextPartType.OTHER]),
-        "gt_quote_text_parts": len([d for d in data.additional_attributes["text_as_parts_gt"] if d.type == TextPartType.OTHER]),
+        "gt_quote_text_parts": len([d for d in data.additional_attributes["text_as_parts_gt"] if d.type == TextPartType.QUOTE]),
     }
     return stats
 
@@ -95,22 +95,17 @@ def main():
     attributor_params = ComponentParser.parse_component_params(args.attributor_params)
     print(f"Parsed attributor_params: {attributor_params}")
 
-    params_str_for_filename = (str(args.attributor_params)
-                               .replace(" ", "_")
-                               .replace("'", "_")
-                               .replace("/", "_")
-                               .replace("\\", "_")
-                               .replace(":", "_")
-                               .replace(".", "_")
-                               .replace(",", "_")
-                               .replace("=", "_"))
-
     # Process book by book
     stats = {}
     for book in tqdm(books, desc="Processing books", unit="book"):
         pipeline_save_file = Path(f"output/attributions_litbank_book_{book}_%Y-%m-%d_%H-%M-%S.json")
-        stat = process_book(book, args.litbank_repo_path, attributor_params, pipeline_save_file)
-        stats[book] = stat
+        try:
+            stat = process_book(book, args.litbank_repo_path, attributor_params, pipeline_save_file)
+            stat["attributor_params"] = args.attributor_params
+            stats[book] = stat
+        except Exception as e:
+            print("Exception while processing book:", book, e)
+            print("Skipping book because of exception above:", book)
 
     print("All books processed")
     print(f"Stats: {stats}")
