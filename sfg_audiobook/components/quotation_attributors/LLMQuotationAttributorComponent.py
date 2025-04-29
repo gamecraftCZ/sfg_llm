@@ -26,7 +26,7 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
     def __init__(self, params: dict[str, str], name: str = None, *args, **kwargs) -> None:
         super().__init__(params, name, *args, **kwargs)
-        self._chunk_size = int(params.get('chunk_size', 4096))
+        self._chunk_size = int(params.get('chunk_size', 12000))  # Around 5000 output tokens.
         self._chunk_overlap = int(params.get('chunk_overlap', 512))
         self._concurrent_requests = int(params.get('concurrent_requests', 32))
 
@@ -123,6 +123,12 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
                 final_text_parts.append(text_part)
 
         merged_text_parts = merge_neighbouring_text_parts_of_the_same_type_and_character(final_text_parts)
+        # Set correct start and end to the final text_parts
+        start = 0
+        for text_part in merged_text_parts:
+            text_part.start = start
+            start += len(text_part.text)
+            text_part.end = start
         return merged_text_parts
 
     def run(self, data: PipelineData):
