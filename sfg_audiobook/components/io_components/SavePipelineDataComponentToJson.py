@@ -27,6 +27,7 @@ class SavePipelineDataComponentToJson(AbstractComponent):
         filepath = self._params["file"]
         filepath = datetime.now().strftime(filepath)
         print(f"{self._name}: Saving pipeline data to: {filepath}")
+        data.additional_attributes["last_save_path"] = filepath
         with open(filepath, "w+", encoding="utf-8") as f:
             json_text = data.model_dump_json(indent=4)
             f.write(json_text)
