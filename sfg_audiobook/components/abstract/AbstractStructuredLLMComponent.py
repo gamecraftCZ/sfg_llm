@@ -67,7 +67,8 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": content_prompt}
             ],
-            response_format=TargetModel
+            response_format=TargetModel,
+            temperature=0,
         )
 
         # Process the response
