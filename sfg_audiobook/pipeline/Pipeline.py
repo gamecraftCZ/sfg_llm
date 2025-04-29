@@ -9,7 +9,7 @@ class Pipeline:
         self.components = components
         self._data = None
 
-    def setup_and_run(self, input_data: PipelineData | None) -> PipelineData:
+    def setup_and_run(self, input_data: PipelineData | None = None) -> PipelineData:
         if input_data:
             self._data = input_data
         elif self._data is None:

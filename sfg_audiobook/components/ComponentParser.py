@@ -12,11 +12,7 @@ class ComponentParser:
         if "[" in component_string and "]" in component_string:
             registered_name, args_str = component_string.split("[", 1)
             args_str = args_str.rstrip("]")
-            try:
-                args = dict(arg.split("=") for arg in args_str.split(","))
-            except ValueError:
-                raise ComponentParserError(
-                    f"Invalid argument format in '{args_str}'. Expected 'arg1=val1,arg2=val2,...'")
+            args = ComponentParser.parse_component_params(args_str)
         else:
             registered_name = component_string
             args = {}
@@ -28,3 +24,14 @@ class ComponentParser:
 
         component = ComponentClass(args)
         return component
+
+    @staticmethod
+    def parse_component_params(params_string: str) -> dict[str, str]:
+        """
+        Parse a component parameters string into a dictionary.
+        """
+        try:
+            return dict(arg.split("=") for arg in params_string.split(","))
+        except ValueError:
+            raise ComponentParserError(
+                f"Invalid argument format in '{params_string}'. Expected 'arg1=val1,arg2=val2,...'")
