@@ -32,7 +32,11 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
             raise ValueError("Extracted characters list is None. Character extraction failed.")
 
         data.characters = characters_list.characters
-        data.additional_attributes["llm_characters_extraction_stats"] = stats
+        data.additional_attributes["llm_characters_extraction_stats"] = {
+            "llm_all_stats": stats,
+            "llm_total_input_tokens": stats["prompt_tokens"],
+            "llm_total_output_tokens": stats["completion_tokens"],
+        }
 
 
 ComponentsRegister.register_component("llm_character_extractor", LLMCharacterExtractor)

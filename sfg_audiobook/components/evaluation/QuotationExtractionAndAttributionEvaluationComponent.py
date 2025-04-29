@@ -1,7 +1,8 @@
 import Levenshtein
 import numpy as np
 
-from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character, array_to_ranges
+from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character, array_to_ranges, \
+    remove_duplicate_spaces
 from components.ComponentsRegister import ComponentsRegister
 from sfg_types import PipelineData, TextPart
 from structure.AbstractComponent import AbstractComponent
@@ -49,9 +50,13 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
             data.additional_attributes["iou_quotation_scores"] = []
             return
 
+        # Remove blank spaces and remove empty text parts
+        gt_text_parts = remove_duplicate_spaces([part.model_copy() for part in gt_text_parts if part.text.strip() + " "], strip=True)
+        predicted_text_parts = remove_duplicate_spaces([part.model_copy() for part in predicted_text_parts if part.text.strip() + " "], strip=True)
+
         # Preprocess text parts
-        predicted_text_parts_merged = merge_neighbouring_text_parts_of_the_same_type_and_character(predicted_text_parts)
         gt_text_parts_merged = merge_neighbouring_text_parts_of_the_same_type_and_character(gt_text_parts)
+        predicted_text_parts_merged = merge_neighbouring_text_parts_of_the_same_type_and_character(predicted_text_parts)
 
         # Calculations
         gt_text_full, gt_quotes_mask, gt_text_parts_ids = QuotationExtractionEvaluationComponent._text_parts_to_text_and_mask(gt_text_parts_merged)
@@ -174,7 +179,6 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
         accuracy = correct / total if total > 0 else 0.0
         print(f"GT to pred matched quotes accuracy ({correct}/{total}): {accuracy:.4f}")
         data.additional_attributes["gt_matched_quotes_accuracy"] = accuracy
-
 
 
 ComponentsRegister.register_component("evaluation_quotation_extraction", QuotationExtractionEvaluationComponent)

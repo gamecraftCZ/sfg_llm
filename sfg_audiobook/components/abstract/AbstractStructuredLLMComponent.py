@@ -75,7 +75,8 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
             response_json = res.choices[0].model_extra["message"].content
             parsed_response = TargetModel.model_validate_json(response_json)
 
-            stats = {}
+            usage = res.model_extra["usage"]
+            stats = {"prompt_tokens": usage.prompt_tokens, "completion_tokens": usage.completion_tokens}
             return parsed_response, stats
 
         except json.JSONDecodeError as e:

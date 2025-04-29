@@ -16,6 +16,8 @@ class TextPart(BaseModel):
     text: str = Field(..., description="The exact text (including all whitespaces) of the text.")
     type: TextPartType = Field(..., description="The type of text part.")
     character_identifier: str | None = Field(default=None, description="The unique identifier of the character who said that quote")
+    start: int | None = Field(default=None, description="The start position of the quote in text.")
+    end: int | None = Field(default=None, description="The end position of the quote in text.")
 
     def remove_newlines(self):
         self.text = self.text.replace("\n", " ")
