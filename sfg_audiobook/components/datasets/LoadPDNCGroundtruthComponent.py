@@ -3,6 +3,8 @@ from pathlib import Path
 import csv
 import json
 from common.errors import ComponentParserError
+from common.utils import remove_duplicate_spaces, remove_empty_text_parts, \
+    merge_neighbouring_text_parts_of_the_same_type_and_character
 from components.ComponentsRegister import ComponentsRegister
 from sfg_types import PipelineData, TextPart, Character, TextPartType, CharacterType, CharacterGender
 from structure.AbstractComponent import AbstractComponent
@@ -39,7 +41,23 @@ class LoadPDNCGroundtruthComponent(AbstractComponent):
         characters, alias_character_mapping = LoadPDNCGroundtruthComponent.load_pdnc_characters(book_id, repo_path)
         data.additional_attributes["characters_gt"] = characters
 
+        # Load and process text_parts so in the end it is
         text_parts = LoadPDNCGroundtruthComponent.load_pdnc_text_parts(book_id, repo_path, alias_character_mapping)
+        text_parts = remove_duplicate_spaces(text_parts, strip=True)
+        text_parts = remove_empty_text_parts(text_parts)
+        text_parts = merge_neighbouring_text_parts_of_the_same_type_and_character(text_parts, separator=" ")
+        # Add spaces around text, this is good as our text_parts are alternating OTHER, QUOTE types
+        if text_parts[0].type == TextPartType.OTHER:
+            text_parts[0].text += " "
+        if text_parts[-1].type == TextPartType.OTHER:
+            text_parts[-1].text += " "
+        for text_part in text_parts[1:-1]:
+            if text_part.type == TextPartType.OTHER:
+                text_part.text = " " + text_part.text + " "
+        for text_part, next_text_part in zip(text_parts[:-1], text_parts[1:]):
+            if text_part.type == next_text_part.type == TextPartType.QUOTE:
+                text_part.text += " "
+
         data.additional_attributes["text_as_parts_gt"] = text_parts
         data.additional_attributes["original_text_gt"] = "".join([part.text for part in text_parts])
 
