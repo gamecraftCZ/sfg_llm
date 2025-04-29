@@ -67,13 +67,20 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": content_prompt}
             ],
-            response_format=TargetModel,
+            response_format=TargetModel,  # litellm sucks with gemini and this does not make output json necessary valid
+            # response_format={"type": "json_object"},
             temperature=0,
         )
 
         # Process the response
         try:
             response_json = res.choices[0].model_extra["message"].content
+
+            # Models like to add ``` around the response sometimes, this will remove it.
+            first_opening_bracket = response_json.find("{")
+            last_opening_bracket = response_json.rfind("}")
+            response_json = response_json[first_opening_bracket:last_opening_bracket + 1]
+
             parsed_response = TargetModel.model_validate_json(response_json)
 
             usage = res.model_extra["usage"]
