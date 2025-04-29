@@ -90,7 +90,7 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
 
         intersection = np.logical_and(gt_mask, pred_mask)
         union = np.logical_or(gt_mask, pred_mask)
-        iou_score = np.sum(intersection) / np.sum(union) if np.sum(union) > 0 else 0.0
+        iou_score = np.sum(intersection) / np.sum(union) if np.sum(union) > 0 else 1.0
 
         print(f"Total Quotation IoU score: {iou_score:.4f}")
         data.additional_attributes["quotation_iou_score"] = iou_score
@@ -144,7 +144,7 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
 
         correct = sum(1 for stat in pred_quote_attribution_stats if stat["correct"])
         total = len(pred_quote_attribution_stats)
-        accuracy = correct / total if total > 0 else 0.0
+        accuracy = correct / total if total > 0 else 1.0
         print(f"Matched quotes accuracy ({correct}/{total}): {accuracy:.4f}")
         data.additional_attributes["matched_quotes_accuracy"] = accuracy
 
