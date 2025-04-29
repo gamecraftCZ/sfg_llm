@@ -86,7 +86,7 @@ class LoadLitbankBookGroundtruthComponent(AbstractComponent):
             list[str]: List of book IDs.
         """
         # List all files in the Litbank repository that matches *.ann
-        return [f.split(".")[0] for f in os.listdir(litbank_repo_path / "original") if f.endswith(".ann")]
+        return [f.split(".")[0] for f in os.listdir(litbank_repo_path / "original")]
 
     @staticmethod
     def _load_from_file(filename: Path) -> str:
