@@ -1,5 +1,7 @@
 import json
 from abc import ABC
+from time import sleep
+
 from jinja2 import Template
 import litellm
 import os
@@ -61,16 +63,24 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         content_prompt = self._content_prompt_template.render({"data": data, "text": text})
 
         # Call LLM API
-        res = litellm.completion(
-            model=self._model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": content_prompt}
-            ],
-            response_format=TargetModel,  # litellm sucks with gemini and this does not make output json necessary valid
-            # response_format={"type": "json_object"},
-            temperature=0,
-        )
+        # Try 5 times in case something bad happens
+        for i in range(5):
+            try:
+                res = litellm.completion(
+                    model=self._model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": content_prompt}
+                    ],
+                    response_format=TargetModel,  # litellm sucks with gemini and this does not make output json necessary valid
+                    # response_format={"type": "json_object"},
+                    seed=42,  # Try to make the model as deterministic as possible between calls (even tho it is not possible: https://platform.openai.com/docs/advanced-usage/reproducible-outputs)
+                )
+            except Exception as e:
+                print(f"Error calling LLM API: {e}")
+                if i == 4:
+                    raise e
+                sleep(60)  # Sleep one second
 
         # Process the response
         try:
