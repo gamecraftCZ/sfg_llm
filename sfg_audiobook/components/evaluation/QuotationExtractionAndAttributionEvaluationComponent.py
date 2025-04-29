@@ -41,13 +41,11 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
 
         # Handle edge cases
         if not predicted_text_parts and not gt_text_parts:
-            data.additional_attributes["iou_quotation_score"] = 1.0
-            data.additional_attributes["iou_quotation_scores"] = []
+            data.additional_attributes["quotation_iou_score"] = 1.0
             return
 
         if not predicted_text_parts or not gt_text_parts:
-            data.additional_attributes["iou_quotation_score"] = 0.0
-            data.additional_attributes["iou_quotation_scores"] = []
+            data.additional_attributes["quotation_iou_score"] = 0.0
             return
 
         # Remove blank spaces and remove empty text parts
@@ -94,11 +92,15 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
         union = np.logical_or(gt_mask, pred_mask)
         iou_score = np.sum(intersection) / np.sum(union) if np.sum(union) > 0 else 0.0
 
+        print(f"Total Quotation IoU score: {iou_score:.4f}")
+        data.additional_attributes["quotation_iou_score"] = iou_score
+
         # Errors
         mistakes = np.logical_xor(gt_mask, pred_mask)
         mistakes_locs = np.where(mistakes)[0]
         mistakes_locs_ranges = array_to_ranges(mistakes_locs)
         print(f"Quotation Mistakes ({len(mistakes_locs_ranges)}):")
+        mistakes_info = []
         for mistake_range in mistakes_locs_ranges:
             pred_quotes_in_range_ids = pred_text_parts_ids_extended[mistake_range[0]:mistake_range[1]]
             gt_quotes_in_range_ids = gt_text_parts_ids[mistake_range[0]:mistake_range[1]]
@@ -106,13 +108,12 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
             pred_quotes_in_range = [part for part in predicted_text_parts_merged if part.id in pred_quotes_in_range_ids]
             gt_quotes_in_range = [part for part in gt_text_parts_merged if part.id in gt_quotes_in_range_ids]
 
+            mistakes_info.append({"mistake_range": (int(mistake_range[0]), int(mistake_range[1])), "text_in_that_range": gt_text_full[mistake_range[0]:mistake_range[1]], "pred_quotes": pred_quotes_in_range, "gt_quotes": gt_quotes_in_range})
             print(f"  {mistake_range[0]}-{mistake_range[1]}: '{gt_text_full[mistake_range[0]:mistake_range[1]]}'")
             print(f"    Predicted: {pred_quotes_in_range}")
             print(f"    GT: {gt_quotes_in_range}")
 
-
-        print(f"Total Quotation IoU score: {iou_score:.4f}")
-        data.additional_attributes["quotation_iou_score"] = iou_score
+        data.additional_attributes["quotation_mistakes"] = mistakes_info
 
         # Match predicted quotes with their gt counterparts and calculate accuracy
         pred_quote_attribution_stats = []
@@ -176,7 +177,7 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
 
         correct = sum(1 for stat in gt_quote_attribution_stats if stat["correct"])
         total = len(gt_quote_attribution_stats)
-        accuracy = correct / total if total > 0 else 0.0
+        accuracy = correct / total if total > 0 else 1.0
         print(f"GT to pred matched quotes accuracy ({correct}/{total}): {accuracy:.4f}")
         data.additional_attributes["gt_matched_quotes_accuracy"] = accuracy
 
