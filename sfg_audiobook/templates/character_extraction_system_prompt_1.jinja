@@ -1,108 +1,78 @@
-Identify and split text enclosed in `<text></text>` tags into direct quotes and non-quoted text. For each section of direct speech, assign a speaker from the list provided in `<characters></characters>`. Ensure that speech segments interrupted by non-quoted text are split correctly.
+Extract ALL THE CHARACTERS from a full-length book and provide their names, genders (if inferable from the text), and short descriptions.
+
+Ensure that ALL CHARACTERS ARE INCLUDED, from main to those appearing only once, and provide as much detail as is available in the text. EVERY CHARACTER, EVEN IF APPEARING ONLY ONCE, LIKE A BOY ON A STREET THAT ONLY EVER SPEAKS ONCE IN THE BOOK SHOULD BE MENTIONED.
 
 # Steps
 
-1. **Parse Input:**
-- Extract the full text from within the `<text></text>` tags.
-- Extract the list of potential speakers from within the `<characters></characters>` tags.
+1. **Character Identification**: Read through the book and identify every character mentioned. Pay attention to character list sections, dialogue tags, and narrative references.
 
-2. **Text Analysis:**
-- Process the text word by word.
-- Identify boundaries of quotes and separate them from non-quoted text.
-- Accurately split direct speech segments that have intervening non-quoted text.
+2. **Gender Inference**: For each character, infer gender from pronouns and context if possible. Indicate if gender could not be determined.
 
-3. **Assign Speakers:**
-- For each quoted section, assign a speaker from the provided list of characters.
-- Use context or placeholder logic to assign speakers if multiple are appropriate.
+3. **Character Description**: Write a short description for each character, summarizing key attributes, roles, or memorable actions in the book.
 
-4. **Output Construction:**
-- Structure the results clearly, distinguishing between quoted and non-quoted sections, each time indicating the speaker for quotes.
+4. **Verification**: Review the list to ensure that all characters are included and their details are accurate.
 
 # Output Format
 
-- The output should be in JSON format with the following structure:
+The output should be a list of characters with the following JSON structure:
+
 ```json
+[
 {
-"segments": [
-{
-"text": "[Quoted text]",
-"type": "quote",
-"character_identifier": "[Assigned speaker id]"
-},
-{
-"type": "other",
-"text": "[Normal text]"
+"name": "Character Name",
+"identifier": "Unique character identifier, preferably NAME_IN_UPPERCASE using underscores instead of spaces",
+"type": "Main and support characters are just a few main characters of the story. They act and speak a lot in the book. Minor characters are these, that you only meet ocasionaly and dont have any special meaning for the story.",
+"gender": "male" or "female" or "unknown",
+"personality": "A short description of the character personality. One to five sentences."
 }
+// Repeat for additional characters
 ]
-}
 ```
 
 # Examples
 
-**Example 1:**
+**Example 1**
 
-Input:
-```xml
-<text>John said, "Hello there." Then he waved. "Nice to see you!" he added. "Hello." Replied the servant.</text>
-<characters>
-    <character>
-        <name>John</name>
-        <identifier>JOHN_1</identifier>
-        <gender>female</gender>
-        <personality>An unpleasant-looking, independent little girl who is initially selfish and unfriendly but later shows signs of curiosity and longing for companionship.</personality>
-    </character>
-    <character>
-        <name>Servant</name>
-        <identifier>SERVANT</identifier>
-        <gender>male</gender>
-        <personality>High pitched voice, small and obedient.</personality>
-    </character>
-</characters>
-```
+*Input:*
+<text>
+    Chapter 1
+    ...
+</text>
 
-Output:
+*Output:*
 ```json
+[
 {
-"segments": [
-{
-"type": "normal",
-"text": "John said, ",
+"name": "John Doe",
+"identifier": "JOHN_DOE"
+"type": "main",
+"gender": "male",
+"personality": "A main character. Detective solving mysteries about his lost family. He is serious and bitter."
 },
 {
-"type": "quote",
-"text": "\"Hello there.\"",
-"character_identifier": "JOHN_1"
+"name": "Unknown Child 1",
+"identifier": "UNKNOWN_CHILD_1"
+"type": "minor",
+"gender": "male",
+"personality": "A happy child."
 },
 {
-"type": "normal",
-"text": " Then he waved. "
+"name": "Jane Smith",
+"identifier": "JANE_SMITH",
+"type": "support",
+"gender": "female",
+"personality": "Helps the detective warmly."
 },
 {
-"type": "quote",
-"text": "\"Nice to see you!\"",
-"character_identifier": "JOHN_1"
-},
-{
-"type": "normal",
-"text": " he added. "
-},
-{
-"type": "quote",
-"text": "\"Hello.\"",
-"character_identifier": "SERVANT"
-},
-{
-"type": "normal",
-"text": " Replied the servant."
-},
-]
+"name": "Unknown Child 2",
+"identifier": "UNKNOWN_CHILD_2",
+"type": "minor",
+"gender": "unknown"
+"personality": "Sad."
 }
+]
 ```
 
 # Notes
-
-- Consider context and logical flow to determine speaker assignment when the text does not explicitly specify a speaker.
-- Handle ambiguous speaker assignments sensibly, potentially using placeholders or default heuristics.
-- Be aware of punctuation and formatting to ensure accurate differentiation between quoted and non-quoted sections.
-- BE SURE TO KEEP ALL WHITESPACES AS IS, DO NOT REMOVE ANY.
-- Quotation marks are part of quote segment.
+- If a character name is not explicitly mentioned or is unclear, use a descriptive placeholder.
+- Ensure accuracy by cross-referencing character mentions throughout the book.
