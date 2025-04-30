@@ -4,7 +4,7 @@ import numpy as np
 from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character, array_to_ranges, \
     remove_duplicate_spaces
 from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart
+from sfg_types import PipelineData, TextPart, TextPartType
 from structure.AbstractComponent import AbstractComponent
 
 
@@ -93,7 +93,7 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
         iou_score = np.sum(intersection) / np.sum(union) if np.sum(union) > 0 else 1.0
 
         print(f"Total Quotation IoU score: {iou_score:.4f}")
-        data.additional_attributes["quotation_iou_score"] = iou_score
+        data.additional_attributes["quotation_iou_score"] = float(iou_score)
 
         # Errors
         mistakes = np.logical_xor(gt_mask, pred_mask)
@@ -151,32 +151,39 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
         # Match gt quotes with their pred counterparts and calculate accuracy
         gt_quote_attribution_stats = []
         for quote in gt_text_parts_merged:
-            if quote.type == "quote":
+            if quote.type == TextPartType.QUOTE:
                 quote_mask = gt_quotes_mask == quote.id
                 quote_pred_matched_mask = pred_quotes_mask_extended * quote_mask
+                quote_pred_matched_mask = quote_pred_matched_mask[quote_pred_matched_mask != 0]  # Filter out non quotes
+
                 quote_pred_matched_ids = np.unique(quote_pred_matched_mask)
+                quote_pred_matched_ids = quote_pred_matched_ids
 
                 if len(quote_pred_matched_ids) == 0:
                     gt_quote_attribution_stats.append({
                         "gt_quote": quote,
                         "pred_quote": None,
                         "correct": False,
+                        "weight": 1.0
                     })
 
                 for matched_pred_quote_id in quote_pred_matched_ids:
-                    if matched_pred_quote_id == 0: continue
+                    # Get quote object with id matched_pred_quote_id
                     matched_pred_quote = next((part for part in predicted_text_parts_merged if part.id == matched_pred_quote_id), None)
+                    # Count how large is the intersection between the gt quote and the pred quote
+                    matched_intersection_len = np.count_nonzero(quote_pred_matched_mask == matched_pred_quote_id)
                     if matched_pred_quote:
                         gt_quote_attribution_stats.append({
                             "gt_quote": quote,
                             "pred_quote": matched_pred_quote,
                             "correct": quote.character_identifier == matched_pred_quote.character_identifier,
+                            "weight": matched_intersection_len / len(quote_pred_matched_mask)
                         })
                     else:
                         raise ValueError(f"Pred quote with id {matched_pred_quote_id} not found in pred_text_parts_merged, but should!")
 
-        correct = sum(1 for stat in gt_quote_attribution_stats if stat["correct"])
-        total = len(gt_quote_attribution_stats)
+        correct = sum(stat["weight"] for stat in gt_quote_attribution_stats if stat["correct"])
+        total = sum([stat["weight"] for stat in gt_quote_attribution_stats])
         accuracy = correct / total if total > 0 else 1.0
         print(f"GT to pred matched quotes accuracy ({correct}/{total}): {accuracy:.4f}")
         data.additional_attributes["gt_matched_quotes_accuracy"] = accuracy
