@@ -5,16 +5,16 @@ from pathlib import Path
 from typing import Any
 from tqdm import tqdm
 
-from components import LoadLitbankBookGroundtruthComponent, LLMQuotationAttributorComponent, \
+from components import LLMQuotationAttributorComponent, LoadPDNCGroundtruthComponent, \
     SavePipelineDataComponentToJson, QuotationExtractionEvaluationComponent, ComponentParser
 from pipeline import Pipeline
 from sfg_types import TextPartType
 
 
-def process_book(book: str, litbank_repo_path: Path, attributor_params: dict[str, Any], pipeline_save_file: Path) -> dict[str, Any]:
+def process_book(book: str, pdnc_repo_path: Path, attributor_params: dict[str, Any], pipeline_save_file: Path) -> dict[str, Any]:
     os.makedirs(Path(pipeline_save_file).parent, exist_ok=True)
     components = [
-        LoadLitbankBookGroundtruthComponent(params={"repo": str(litbank_repo_path), "book_id": str(book), "use_gt_text": "true", "use_gt_characters": "true"}),
+        LoadPDNCGroundtruthComponent(params={"repo": str(pdnc_repo_path), "book_id": str(book), "use_gt_text": "true", "use_gt_characters": "true"}),
         LLMQuotationAttributorComponent(params=attributor_params),
         QuotationExtractionEvaluationComponent(params={}),
         # Save the pipeline data to a JSON file
@@ -40,12 +40,12 @@ def process_book(book: str, litbank_repo_path: Path, attributor_params: dict[str
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate component against quotation attribution on Litbank dataset.")
+    parser = argparse.ArgumentParser(description="Evaluate component against quotation attribution on PDNC dataset.")
     parser.add_argument(
         "--repo_path",
         type=Path,
         required=True,
-        help="Path to the Litbank repository.",
+        help="Path to the PDNC repository.",
     )
     parser.add_argument(
         "--book",
@@ -57,12 +57,12 @@ def main():
         "--all_books",
         required=False,
         action="store_true",
-        help="Process all books in the Litbank repository.",
+        help="Process all books in the PDNC repository.",
     )
     parser.add_argument(
         "--out_stats_file_prefix",
         type=str,
-        default="stats_litbank",
+        default="stats_pdnc",
     )
     parser.add_argument(
         "--attributor_params",
@@ -77,28 +77,29 @@ def main():
 
     # Check if repo_path exists
     if not args.repo_path.exists():
-        raise ValueError(f"Litbank repository path {args.repo_path} does not exist.")
+        raise ValueError(f"PDNC repository path {args.repo_path} does not exist.")
 
     # Load list of books
-    all_books = LoadLitbankBookGroundtruthComponent.list_litbank_books(args.repo_path)
+    all_books = LoadPDNCGroundtruthComponent.list_pdnc_books(args.repo_path)
     if args.all_books:
         books = all_books
-        print(f"Processing all books in the Litbank repository. All books: {all_books}")
+        print(f"Processing all books in the PDNC repository. All books: {all_books}")
     else:
         books = args.book if args.book else []
         # Check if specified books exist
         for book in books:
             if book not in all_books:
-                raise ValueError(f"Book {book} not found in Litbank repository. Available books: {all_books}")
+                raise ValueError(f"Book {book} not found in PDNC repository. Available books: {all_books}")
 
     # Load attributor params
     attributor_params = ComponentParser.parse_component_params(args.attributor_params)
     print(f"Parsed attributor_params: {attributor_params}")
 
+
     # Process book by book
     stats = {}
     for book in tqdm(books, desc="Processing books", unit="book"):
-        pipeline_save_file = Path(f"output/attributions_litbank_book_{book}_%Y-%m-%d_%H-%M-%S.json")
+        pipeline_save_file = Path(f"output/attributions_pdnc_book_{book}_%Y-%m-%d_%H-%M-%S.json")
         try:
             stat = process_book(book, args.repo_path, attributor_params, pipeline_save_file)
             stat["attributor_params"] = args.attributor_params
