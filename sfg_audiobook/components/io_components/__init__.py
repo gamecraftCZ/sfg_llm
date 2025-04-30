@@ -1,4 +1,4 @@
 from .LoadTextFromFileComponent import LoadTextFromFileComponent
-from .SavePipelineDataComponentToJson import SavePipelineDataComponentToJson
-from .LoadPipelineDataComponentFromJson import LoadPipelineDataComponentFromJson
+from .SavePipelineDataToJsonComponent import SavePipelineDataComponentToJson
+from .LoadPipelineDataFromJsonComponent import LoadPipelineDataComponentFromJson
 from .PrintDataToStdoutComponent import PrintDataToStdoutComponent

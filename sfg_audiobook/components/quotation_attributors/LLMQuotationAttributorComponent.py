@@ -26,7 +26,7 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
     def __init__(self, params: dict[str, str], name: str = None, *args, **kwargs) -> None:
         super().__init__(params, name, *args, **kwargs)
-        self._chunk_size = int(params.get('chunk_size', 12000))  # Around 5000 output tokens.
+        self._chunk_size = int(params.get('chunk_size', 12000))  # Around 6000 output tokens.
         self._chunk_overlap = int(params.get('chunk_overlap', 512))
         self._concurrent_requests = int(params.get('concurrent_requests', 32))
 
@@ -34,7 +34,7 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
     def get_help() -> str:
         return f"""Uses LLMs with Jinja2 prompt templates to extract and attribute quotations in the text.
 {LLMQuotationAttributorComponent.get_attributes_help_text()}
-\tAttribute (optional): chunk_size (str): Number of characters in chunk sent to LLM. Default 4096
+\tAttribute (optional): chunk_size (str): Number of characters in chunk sent to LLM. Default 12000 (around 6000 output tokens)
 \tAttribute (optional): chunk_overlap (str): Overlapping characters between chunks. Default 512
 \tAttribute (optional): _concurrent_requests (int): Number of concurrent request to the model. Default: 32
 """
@@ -133,10 +133,14 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
     def run(self, data: PipelineData):
         # Split into chunks
-        chunks = split_into_chunks_with_overlap(data.original_text, self._chunk_size, self._chunk_overlap)#[:4]  # TODO remove the limit of four chunks for testing!
+        chunks = split_into_chunks_with_overlap(data.original_text, self._chunk_size, self._chunk_overlap)
 
         # Predict chunk by chunk in parallel
-        results = thread_map(lambda chunk: self.predict(data, chunk, TextParts), chunks, max_workers=self._concurrent_requests)
+        results = thread_map(lambda chunk: self.predict(data, chunk, TextParts),
+                             chunks,
+                             max_workers=self._concurrent_requests,
+                             desc="Predicting book chunk by chunk",
+                             unit="chunk")
         chunks_text_parts = [r[0].as_text_parts_list() for r in results]
         chunks_stats = [r[1] for r in results]
 
