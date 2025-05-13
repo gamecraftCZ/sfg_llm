@@ -65,12 +65,19 @@ def main():
         default="stats_litbank",
     )
     parser.add_argument(
+        "--out_stats_file_overwrite",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
         "--attributor_params",
         type=str,
         required=True,
         help="LLMQuotationAttributorComponent params",
     )
     args = parser.parse_args()
+
+    print("Arguments:", args)
 
     if not args.book and not args.all_books:
         parser.error("Either --book or --all_books must be specified.")
@@ -95,9 +102,23 @@ def main():
     attributor_params = ComponentParser.parse_component_params(args.attributor_params)
     print(f"Parsed attributor_params: {attributor_params}")
 
+    # Load stats file if it exists so we only process new books
+    out_stats_file = Path(f"{args.out_stats_file_prefix}_{'-'.join(books) if len(books) < 5 else f'num_books_{len(books)}'}.json")
+    if out_stats_file.exists() and not args.out_stats_file_overwrite:
+        print(f"Loading existing stats file {out_stats_file}...")
+        with open(out_stats_file, "r") as f:
+            stats = json.load(f)
+    else:
+        stats = {}
+
     # Process book by book
-    stats = {}
     for book in tqdm(books, desc="Processing books", unit="book"):
+        if book in stats.keys():
+            print(f"Book {book} already processed. Skipping.")
+            continue
+
+        print(f"Processing book {book}...")
+
         pipeline_save_file = Path(f"output/attributions_litbank_book_{book}_%Y-%m-%d_%H-%M-%S.json")
         try:
             stat = process_book(book, args.repo_path, attributor_params, pipeline_save_file)
@@ -111,12 +132,12 @@ def main():
     print(f"Stats: {stats}")
 
     # Save stats to file
-    out_stats_file = Path(f"{args.out_stats_file_prefix}_{'-'.join(books) if len(books) < 5 else f'num_books_{len(books)}'}.json")
     os.makedirs(out_stats_file.parent, exist_ok=True)
     with open(out_stats_file, "w+") as f:
         json.dump(stats, f, indent=2)
 
     print(f"Stats saved to {out_stats_file}")
+    print(f"Skipped books: {[book for book in books if book not in stats.keys()]}")
     print("[DONE]")
 
 
