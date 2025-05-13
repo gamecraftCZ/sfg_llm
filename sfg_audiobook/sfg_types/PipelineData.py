@@ -1,7 +1,9 @@
 from typing import Any
 from pydantic import BaseModel, Field
 
-from sfg_types import Character, TTSSpeaker, TextPart
+from .Character import Character
+from .TTSSpeaker import TTSSpeaker
+from .TextPart import TextPart
 
 
 class PipelineData(BaseModel):

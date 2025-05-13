@@ -1,11 +1,11 @@
 import Levenshtein
 import numpy as np
 
-from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character, array_to_ranges, \
+from sfg_audiobook.common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character, array_to_ranges, \
     remove_duplicate_spaces
-from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart, TextPartType
-from structure.AbstractComponent import AbstractComponent
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.sfg_types import PipelineData, TextPart, TextPartType
+from sfg_audiobook.structure.AbstractComponent import AbstractComponent
 
 
 class QuotationExtractionEvaluationComponent(AbstractComponent):

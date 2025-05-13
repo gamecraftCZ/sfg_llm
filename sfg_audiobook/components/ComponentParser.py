@@ -1,6 +1,6 @@
-from common.errors import ComponentParserError
-from components import ComponentsRegister
-from structure import AbstractComponent
+from sfg_audiobook.common.errors import ComponentParserError
+from sfg_audiobook.components import ComponentsRegister
+from sfg_audiobook.structure import AbstractComponent
 
 
 class ComponentParser:

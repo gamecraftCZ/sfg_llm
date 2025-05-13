@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from sfg_types import PipelineData
+from sfg_audiobook.sfg_types import PipelineData
 
 
 class AbstractComponent(ABC):

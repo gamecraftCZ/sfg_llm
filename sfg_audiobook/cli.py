@@ -2,12 +2,10 @@ import argparse
 import json
 import sys
 
-from common.errors import ComponentParserError
-from components import ComponentParser
-from components.ComponentsRegister import ComponentsRegister
-from pipeline import Pipeline
-from sfg_types import PipelineData
-from structure import AbstractComponent
+from sfg_audiobook.common.errors import ComponentParserError
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.pipeline import Pipeline
+from sfg_audiobook.sfg_types import PipelineData
 
 
 def run_from_cli():

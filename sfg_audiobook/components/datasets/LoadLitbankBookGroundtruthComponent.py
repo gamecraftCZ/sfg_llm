@@ -2,11 +2,11 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from common.errors import ComponentParserError
-from common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character
-from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart, Character
-from structure.AbstractComponent import AbstractComponent
+from sfg_audiobook.common.errors import ComponentParserError
+from sfg_audiobook.common.utils import merge_neighbouring_text_parts_of_the_same_type_and_character
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.sfg_types import PipelineData, TextPart, Character
+from sfg_audiobook.structure.AbstractComponent import AbstractComponent
 
 
 @dataclass

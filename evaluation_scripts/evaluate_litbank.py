@@ -5,10 +5,10 @@ from pathlib import Path
 from typing import Any
 from tqdm import tqdm
 
-from components import LoadLitbankBookGroundtruthComponent, LLMQuotationAttributorComponent, \
+from sfg_audiobook.components import LoadLitbankBookGroundtruthComponent, LLMQuotationAttributorComponent, \
     SavePipelineDataComponentToJson, QuotationExtractionEvaluationComponent, ComponentParser
-from pipeline import Pipeline
-from sfg_types import TextPartType
+from sfg_audiobook.pipeline import Pipeline
+from sfg_audiobook.sfg_types import TextPartType
 
 
 def process_book(book: str, litbank_repo_path: Path, attributor_params: dict[str, Any], pipeline_save_file: Path) -> dict[str, Any]:

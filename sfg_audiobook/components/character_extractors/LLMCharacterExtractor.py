@@ -1,8 +1,8 @@
 from typing import List
 from pydantic import BaseModel
-from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, Character
-from components.abstract import AbstractStructuredLLMComponent
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.sfg_types import PipelineData, Character
+from sfg_audiobook.components.abstract import AbstractStructuredLLMComponent
 
 
 class CharactersList(BaseModel):

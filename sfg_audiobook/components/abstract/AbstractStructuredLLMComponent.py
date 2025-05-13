@@ -8,8 +8,8 @@ import litellm
 import os
 from pydantic import BaseModel
 
-from sfg_types import PipelineData
-from structure.AbstractComponent import AbstractComponent
+from sfg_audiobook.sfg_types import PipelineData
+from sfg_audiobook.structure.AbstractComponent import AbstractComponent
 
 
 class AbstractStructuredLLMComponent(AbstractComponent, ABC):

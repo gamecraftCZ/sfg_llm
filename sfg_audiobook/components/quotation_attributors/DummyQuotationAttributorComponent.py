@@ -1,6 +1,6 @@
-from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart
-from structure.AbstractComponent import AbstractComponent
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.sfg_types import PipelineData, TextPart
+from sfg_audiobook.structure.AbstractComponent import AbstractComponent
 
 
 class DummyQuotationAttributorComponent(AbstractComponent):

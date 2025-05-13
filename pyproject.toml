@@ -16,5 +16,8 @@ dependencies = [
     'importlib-metadata; python_version>"3.12"',
 ]
 
+[tool.setuptools]
+packages = ["sfg_audiobook"]
+
 [project.scripts]
 sfg_audiobook = "sfg_audiobook.cli:run_from_cli"

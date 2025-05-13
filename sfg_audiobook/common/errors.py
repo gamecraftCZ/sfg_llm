@@ -1,4 +1,4 @@
-from structure import AbstractComponent
+from sfg_audiobook.structure import AbstractComponent
 
 
 class ComponentParserError(ValueError):

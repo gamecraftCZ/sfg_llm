@@ -1,6 +1,6 @@
 import numpy as np
 import re
-from sfg_types import TextPart
+from sfg_audiobook.sfg_types import TextPart
 
 
 def merge_neighbouring_text_parts_of_the_same_type_and_character(text_parts: list[TextPart], separator: str = "") -> list[TextPart]:

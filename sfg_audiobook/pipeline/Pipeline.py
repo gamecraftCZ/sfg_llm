@@ -1,7 +1,6 @@
-from common.errors import ComponentParserError
-from components import ComponentParser
-from sfg_types import PipelineData
-from structure import AbstractComponent
+from sfg_audiobook.components import ComponentParser
+from sfg_audiobook.sfg_types import PipelineData
+from sfg_audiobook.structure import AbstractComponent
 
 
 class Pipeline:

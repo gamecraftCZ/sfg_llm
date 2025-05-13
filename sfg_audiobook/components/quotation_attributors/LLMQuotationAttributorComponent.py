@@ -1,10 +1,10 @@
 from pydantic import BaseModel, Field
 import Levenshtein
 from tqdm.contrib.concurrent import thread_map
-from common.utils import split_into_chunks_with_overlap, merge_neighbouring_text_parts_of_the_same_type_and_character
-from components.ComponentsRegister import ComponentsRegister
-from sfg_types import PipelineData, TextPart, TextPartType
-from components.abstract import AbstractStructuredLLMComponent
+from sfg_audiobook.common.utils import split_into_chunks_with_overlap, merge_neighbouring_text_parts_of_the_same_type_and_character
+from sfg_audiobook.components.ComponentsRegister import ComponentsRegister
+from sfg_audiobook.sfg_types import PipelineData, TextPart, TextPartType
+from sfg_audiobook.components.abstract import AbstractStructuredLLMComponent
 
 class PredictedTextPart(BaseModel):
     text: str = Field(..., description="The exact text (including all whitespaces) of the text.")
