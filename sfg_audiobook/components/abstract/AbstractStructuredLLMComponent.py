@@ -149,8 +149,8 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
             return parsed_response, stats
 
         except json.JSONDecodeError as e:
-            print(f"Error parsing character data: {e}")
-            print(f"Response: {res}")
+            print(f"Error parsing LLM data: {e}")
+            print(f"LLM response: {res}")
             return None, None
 
 

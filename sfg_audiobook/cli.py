@@ -1,5 +1,4 @@
 import argparse
-import json
 import sys
 
 from sfg_audiobook.common.errors import ComponentParserError

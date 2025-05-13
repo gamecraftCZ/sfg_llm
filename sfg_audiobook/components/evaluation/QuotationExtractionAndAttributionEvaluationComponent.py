@@ -99,7 +99,7 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
         mistakes = np.logical_xor(gt_mask, pred_mask)
         mistakes_locs = np.where(mistakes)[0]
         mistakes_locs_ranges = array_to_ranges(mistakes_locs)
-        print(f"Quotation Mistakes ({len(mistakes_locs_ranges)}):")
+        print(f"Quotation Mistakes: {len(mistakes_locs_ranges)}")
         mistakes_info = []
         for mistake_range in mistakes_locs_ranges:
             pred_quotes_in_range_ids = pred_text_parts_ids_extended[mistake_range[0]:mistake_range[1]]
@@ -109,9 +109,6 @@ class QuotationExtractionEvaluationComponent(AbstractComponent):
             gt_quotes_in_range = [part for part in gt_text_parts_merged if part.id in gt_quotes_in_range_ids]
 
             mistakes_info.append({"mistake_range": (int(mistake_range[0]), int(mistake_range[1])), "text_in_that_range": gt_text_full[mistake_range[0]:mistake_range[1]], "pred_quotes": pred_quotes_in_range, "gt_quotes": gt_quotes_in_range})
-            print(f"  {mistake_range[0]}-{mistake_range[1]}: '{gt_text_full[mistake_range[0]:mistake_range[1]]}'")
-            print(f"    Predicted: {pred_quotes_in_range}")
-            print(f"    GT: {gt_quotes_in_range}")
 
         data.additional_attributes["quotation_mistakes"] = mistakes_info
 
