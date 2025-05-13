@@ -1,0 +1,218 @@
+{# Specific prompt #}
+Identify and split text enclosed in `<text></text>` tags into direct speech (quotes) and other text. For each section of direct speech, assign a speaker from the list provided in `<characters></characters>` tags. Ensure that speech segments interrupted by non-quoted text are split correctly.
+
+# Steps
+
+1. **Parse Input:**
+- Extract the full text from within the `<text></text>` tags.
+- Extract the list of potential speakers from within the `<characters></characters>` tags.
+
+2. **Text Analysis:**
+- Process the text word by word.
+- Identify boundaries of direct speech (quotes) and separate them from other text.
+- Accurately split direct speech segments that have intervening non-quoted text.
+
+3. **Assign Speakers:**
+- For each quoted section, assign a speaker from the provided list of characters.
+- Use context to assign speakers if multiple are appropriate.
+
+4. **Output Construction:**
+- Structure the results clearly, distinguishing between quoted and non-quoted sections, each time indicating the speaker for quotes.
+
+# Output Format
+
+- The output should be in JSON format with the following structure:
+```json
+{
+"segments": [
+{
+"text": "[Quoted text]",
+"type": "quote",
+"character_identifier": "[Assigned speaker id]"
+},
+{
+"type": "other",
+"text": "[Normal text]"
+}
+]
+}
+```
+
+# Notes
+
+- Consider context and logical flow to determine speaker assignment when the text does not explicitly specify a speaker.
+- Be aware of punctuation and formatting to ensure accurate differentiation between quoted and non-quoted sections.
+- BE SURE TO KEEP ALL WHITESPACES AS IS, DO NOT REMOVE ANY.
+- Quotation marks are part of quote segment.
+
+# Examples
+
+## Example 1
+### Input
+```xml
+<text>John said, "Hello there." Then he waved. "Nice to see you!" he added. "Hello." Replied the servant.</text>
+<characters>
+<character>
+<name>John</name>
+<identifier>JOHN_1</identifier>
+<gender>female</gender>
+<personality>An unpleasant-looking, independent little girl who is initially selfish and unfriendly but later shows signs of curiosity and longing for companionship.</personality>
+</character>
+<character>
+<name>Servant</name>
+<identifier>SERVANT</identifier>
+<gender>male</gender>
+<personality>High pitched voice, small and obedient.</personality>
+</character>
+</characters>
+```
+
+### Output
+```json
+{
+"segments": [
+{
+"type": "other",
+"text": "John said, ",
+},
+{
+"type": "quote",
+"text": "\"Hello there.\"",
+"character_identifier": "JOHN_1"
+},
+{
+"type": "other",
+"text": " Then he waved. "
+},
+{
+"type": "quote",
+"text": "\"Nice to see you!\"",
+"character_identifier": "JOHN_1"
+},
+{
+"type": "other",
+"text": " he added. "
+},
+{
+"type": "quote",
+"text": "\"Hello.\"",
+"character_identifier": "SERVANT"
+},
+{
+"type": "other",
+"text": " Replied the servant."
+},
+]
+}
+```
+
+## Example 2
+### Input
+<text>"Wait-" Robert began, but was interrupted. "You didn't let me finish," he protested. "Oh God," she said into the pillow. "I can't believe this is happening."</text>
+<characters>
+<character>
+<name>Robert</name>
+<identifier>ROBERT_8</identifier>
+<gender>male</gender>
+<personality>Thoughtful but often interrupted, tries to express complete thoughts.</personality>
+</character>
+<character>
+<name>Eric</name>
+<identifier>ERIC_2</identifier>
+<gender>male</gender>
+<personality>Strategic and analytical, maintains composure under pressure.</personality>
+</character>
+<character>
+<name>Brenda</name>
+<identifier>BRENDA_7</identifier>
+<gender>female</gender>
+<personality>Emotional and easily overwhelmed, prone to dramatic reactions.</personality>
+</character>
+</characters>
+
+### Output
+{
+"segments": [
+{
+"type": "quote",
+"text": "\"Wait-\"",
+"character_identifier": "ROBERT_8"
+},
+{
+"type": "other",
+"text": " Robert began, but was interrupted. "
+},
+{
+"type": "quote",
+"text": "\"You didn't let me finish,\"",
+"character_identifier": "ROBERT_8"
+},
+{
+"type": "other",
+"text": " he protested. "
+},
+{
+"type": "quote",
+"text": "\"Oh God,\"",
+"character_identifier": "BRENDA_7"
+},
+{
+"type": "other",
+"text": " she said into the pillow. "
+},
+{
+"type": "quote",
+"text": "\"I can't believe this is happening.\"",
+"character_identifier": "BRENDA_7"
+}
+]
+}
+
+## Example 3
+### Input
+## Example 6
+Input:
+```xml
+<text>Professor Miller pointed to the inscription on the ancient tablet. "According to these hieroglyphics," he explained, "the temple was built to honor the sun god." He traced the symbols with his finger. Under his finger there was text reading "Ancient Rome".</text>
+<characters>
+<character>
+<name>Professor Miller</name>
+<identifier>PROF_MILLER</identifier>
+<gender>male</gender>
+<personality>Scholarly and enthusiastic about archaeological discoveries, speaks with authority.</personality>
+</character>
+<character>
+<name>Student</name>
+<identifier>STUDENT_11</identifier>
+<gender>neutral</gender>
+<personality>Attentive and curious, asks thoughtful questions.</personality>
+</character>
+</characters>
+
+### Output
+{
+"segments": [
+{
+"type": "other",
+"text": "Professor Miller pointed to the inscription on the ancient tablet. "
+},
+{
+"type": "quote",
+"text": "\"According to these hieroglyphics,\"",
+"character_identifier": "PROF_MILLER"
+},
+{
+"type": "other",
+"text": " he explained, "
+},
+{
+"type": "quote",
+"text": "\"the temple was built to honor the sun god.\"",
+"character_identifier": "PROF_MILLER"
+},
+{
+"type": "other",
+"text": " He traced the symbols with his finger. Under his finger there was text reading \"Ancient Rome\"."
+}
+]
+}

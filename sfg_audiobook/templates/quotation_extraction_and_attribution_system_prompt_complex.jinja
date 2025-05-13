@@ -1,0 +1,46 @@
+{# Specific prompt #}
+Identify and split text enclosed in `<text></text>` tags into direct speech (quotes) and other text. For each section of direct speech, assign a speaker from the list provided in `<characters></characters>` tags. Ensure that speech segments interrupted by non-quoted text are split correctly.
+
+# Steps
+
+1. **Parse Input:**
+- Extract the full text from within the `<text></text>` tags.
+- Extract the list of potential speakers from within the `<characters></characters>` tags.
+
+2. **Text Analysis:**
+- Process the text word by word.
+- Identify boundaries of direct speech (quotes) and separate them from other text.
+- Accurately split direct speech segments that have intervening non-quoted text.
+
+3. **Assign Speakers:**
+- For each quoted section, assign a speaker from the provided list of characters.
+- Use context to assign speakers if multiple are appropriate.
+
+4. **Output Construction:**
+- Structure the results clearly, distinguishing between quoted and non-quoted sections, each time indicating the speaker for quotes.
+
+# Output Format
+
+- The output should be in JSON format with the following structure:
+```json
+{
+"segments": [
+{
+"text": "[Quoted text]",
+"type": "quote",
+"character_identifier": "[Assigned speaker id]"
+},
+{
+"type": "other",
+"text": "[Normal text]"
+}
+]
+}
+```
+
+# Notes
+
+- Consider context and logical flow to determine speaker assignment when the text does not explicitly specify a speaker.
+- Be aware of punctuation and formatting to ensure accurate differentiation between quoted and non-quoted sections.
+- BE SURE TO KEEP ALL WHITESPACES AS IS, DO NOT REMOVE ANY.
+- Quotation marks are part of quote segment.
