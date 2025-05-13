@@ -26,8 +26,8 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
     def __init__(self, params: dict[str, str], name: str = None, *args, **kwargs) -> None:
         super().__init__(params, name, *args, **kwargs)
-        self._chunk_size = int(params.get('chunk_size', 12000))  # Around 6000 output tokens.
-        self._chunk_overlap = int(params.get('chunk_overlap', 512))
+        self._chunk_size = int(params.get('chunk_size', 4000))
+        self._chunk_overlap = int(params.get('chunk_overlap', 256))
         self._concurrent_requests = int(params.get('concurrent_requests', 32))
 
     @staticmethod
@@ -36,7 +36,8 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 {LLMQuotationAttributorComponent.get_attributes_help_text()}
 \tAttribute (optional): chunk_size (str): Number of characters in chunk sent to LLM. Default 12000 (around 6000 output tokens)
 \tAttribute (optional): chunk_overlap (str): Overlapping characters between chunks. Default 512
-\tAttribute (optional): _concurrent_requests (int): Number of concurrent request to the model. Default: 32
+\tAttribute (optional): concurrent_requests (int): Number of concurrent request to the model. Default: 32
+\tAttribute (optional): ignore_errors (bool): If true, ignore LLM errors and mark the chunk with error as type other. Default: false
 """
 
     def setup(self, data: PipelineData):
@@ -80,7 +81,6 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
                 best_overlap = overlap
                 min_distance = len(ops)
 
-        print(min_last_chars_distance, min_distance)
         return best_overlap
 
 
@@ -141,6 +141,19 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
                              max_workers=self._concurrent_requests,
                              desc="Predicting book chunk by chunk",
                              unit="chunk")
+
+        # Ignore errors (None in text parts and stats)
+        ignored_errors_count = 0
+        if self._params.get("ignore_errors", False):
+            for i in range(len(results)):
+                if results[i][0] is None:
+                    ignored_errors_count += 1
+                    results[i] = (
+                        TextParts(segments=[PredictedTextPart(text=chunks[i], type=TextPartType.OTHER)]),
+                        {"prompt_tokens": 0, "completion_tokens": 0}
+                    )
+            print("Ignored errors count from the model: ", ignored_errors_count)
+
         chunks_text_parts = [r[0].as_text_parts_list() for r in results]
         chunks_stats = [r[1] for r in results]
 
@@ -159,11 +172,14 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
             "predicted_text_parts_chunks_list": chunks_text_parts,
 
+            "ignored_errors_count": ignored_errors_count,
+
             # LLM info
             "llm_raw_stats": chunks_stats,
             "llm_total_input_tokens": sum([s["prompt_tokens"] for s in chunks_stats]),
             "llm_total_output_tokens": sum([s["completion_tokens"] for s in chunks_stats]),
         }
+        data.additional_attributes["llm_extracted_text"] = "".join([part.text for part in data.text_as_parts])
 
 
 ComponentsRegister.register_component("llm_quotation_attributor", LLMQuotationAttributorComponent)

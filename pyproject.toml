@@ -13,6 +13,7 @@ dependencies = [
     "tqdm",
     "numpy",
     "levenshtein",
+    "google-genai",
     'importlib-metadata; python_version>"3.12"',
 ]
 

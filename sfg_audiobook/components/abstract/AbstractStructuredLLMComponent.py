@@ -3,6 +3,8 @@ from abc import ABC
 from time import sleep
 
 import openai
+from google import genai
+from google.genai.errors import ServerError
 from jinja2 import Template
 import litellm
 import os
@@ -36,6 +38,8 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         # Check model supported params
         self._model_supported_params = litellm.get_supported_openai_params(model=self._model)
 
+        self._model_name = self._model.split("/")[1]
+
         # Set API key
         self._api_provider = self._model.split("/")[0].lower()
         env_api_key_name = f"{self._api_provider.upper()}_API_KEY"
@@ -67,8 +71,7 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         content_prompt = self._content_prompt_template.render({"data": data, "text": text})
 
         # Call LLM API
-        # Try 5 times in case something bad happens
-        for i in range(5):
+        while True:
             try:
                 if self._api_provider == "ollama":
                     res = litellm.completion(
@@ -78,8 +81,32 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
                             {"role": "user", "content": content_prompt}
                         ],
                         format=TargetModel.model_json_schema(),
-                        num_ctx=context_window_size if context_window_size else 8192,  # Set larger context window for the Ollama server to use with the model
+                        num_ctx=context_window_size if context_window_size else 16384,  # Set larger context window for the Ollama server to use with the model
                     )
+                    response_json = res.choices[0].model_extra["message"].content
+
+                elif self._api_provider == "gemini":
+                    # litellm does not correctly support gemini JSON schemas validation, call gemini directly
+                    # https://ai.google.dev/gemini-api/docs/structured-output?lang=python
+                    client = genai.Client(api_key=self._api_key)
+                    res = client.models.generate_content(
+                        model=self._model_name,
+                        contents=content_prompt,
+                        config={
+                            'response_mime_type': 'application/json',
+                            'response_schema': TargetModel,
+                            'system_instruction': system_prompt,
+                        },
+                    )
+                    res_obj = res.parsed
+                    response_json = res.text
+                    if not res_obj:
+                        raise ValueError(f"Gemini response can not be parsed correctly, finish reason: {res.candidates[0].finish_reason}, finish_message: {res.candidates[0].finish_message}, response text: '{response_json}', input content prompt: '{content_prompt}'.")
+                    parsed_response = TargetModel.model_validate_json(response_json)
+                    usage = res.usage_metadata
+                    stats = {"prompt_tokens": usage.prompt_token_count, "completion_tokens": usage.candidates_token_count}
+                    return parsed_response, stats
+
                 else:
                     res = litellm.completion(
                         model=self._model,
@@ -87,25 +114,30 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": content_prompt}
                         ],
-                        response_format=TargetModel,  # litellm sucks with gemini and this does not make output json necessary valid
+                        response_format=TargetModel,  # litellm sucks with gemini and this does not make output json necessary valid, hell
                         # response_format={"type": "json_object"},
                         seed=42,  # Try to make the model as deterministic as possible between calls (even tho it is not possible: https://platform.openai.com/docs/advanced-usage/reproducible-outputs)
                         allowed_openai_params=['seed'],
                     )
-            except openai.RateLimitError as e:
-                print(f"LLM API rate limit hit: {e}")
-                if i == 4:
-                    raise e
-                sleep(60)  # Sleep one minute
-            except litellm.InternalServerError as e:
+                    response_json = res.choices[0].model_extra["message"].content
+                break
+
+            except (litellm.InternalServerError, openai.RateLimitError, ServerError) as e:
                 print(f"LLM API internal server error: {e}")
-                sleep(60)  # Sleep one minute and try again
+                sleep(30)  # Sleep and try again
+
+            except ValueError as e:
+                print(f"LLM API value error: {e}")
+                return None, None
+
+
+            # except openai.RateLimitError as e:
+            #     print(f"LLM API rate limit hit: {e}")
+            #     sleep(30)  # Sleep and try again
 
         # Process the response
         try:
-            response_json = res.choices[0].model_extra["message"].content
-
-            # Models like to add ``` around the response sometimes, this will remove it.
+            # Models like to add ``` around the response sometimes, this will remove it if necessary
             first_opening_bracket = response_json.find("{")
             last_opening_bracket = response_json.rfind("}")
             response_json = response_json[first_opening_bracket:last_opening_bracket + 1]
