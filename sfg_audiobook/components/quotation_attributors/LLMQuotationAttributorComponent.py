@@ -35,8 +35,8 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
     def get_help() -> str:
         return f"""Uses LLMs with Jinja2 prompt templates to extract and attribute quotations in the text.
 {LLMQuotationAttributorComponent.get_attributes_help_text()}
-\tAttribute (optional): chunk_size (str): Number of characters in chunk sent to LLM. Default 12000 (around 6000 output tokens)
-\tAttribute (optional): chunk_overlap (str): Overlapping characters between chunks. Default 512
+\tAttribute (optional): chunk_size (str): Number of characters in chunk sent to LLM. Default 4000
+\tAttribute (optional): chunk_overlap (str): Overlapping characters between chunks. Default 256
 \tAttribute (optional): concurrent_requests (int): Number of concurrent request to the model. Default: 32
 \tAttribute (optional): ignore_errors (bool): If true, ignore LLM errors and mark the chunk with error as type other. Default: false
 """

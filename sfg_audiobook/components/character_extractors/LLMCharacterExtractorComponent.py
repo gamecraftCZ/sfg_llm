@@ -8,7 +8,7 @@ from sfg_audiobook.components.abstract import AbstractStructuredLLMComponent
 class CharactersList(BaseModel):
     characters: List[Character]
 
-class LLMCharacterExtractor(AbstractStructuredLLMComponent):
+class LLMCharacterExtractorComponent(AbstractStructuredLLMComponent):
     """
     Use LLMs with Jinja2 prompt templates to extract all characters from the text.
     This component uses litellm to support many different LLM backends.
@@ -20,7 +20,7 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
     @staticmethod
     def get_help() -> str:
         return f"""Uses LLMs with Jinja2 prompt templates to extract all characters from the text.
-{LLMCharacterExtractor.get_attributes_help_text()}
+{LLMCharacterExtractorComponent.get_attributes_help_text()}
 """
 
     def setup(self, data: PipelineData):
@@ -39,4 +39,5 @@ class LLMCharacterExtractor(AbstractStructuredLLMComponent):
         }
 
 
-ComponentsRegister.register_component("llm_character_extractor", LLMCharacterExtractor)
+ComponentsRegister.register_component("llm_character_extractor", LLMCharacterExtractorComponent)
+

@@ -28,4 +28,4 @@ class Character(BaseModel):
     type: CharacterType = Field(default=CharacterType.UNKNOWN, description="Type of character (e.g., main, support, minor)")
     gender: CharacterGender = Field(default=CharacterGender.UNKNOWN, description="Gender of the character (male, female, other, unknown)")
     personality: str = Field(default="", description="Personality traits of the character")
-    assigned_speaker_id: str | None = Field(None, description="The unique assigned speaker ID for the character")
+    assigned_speaker_id: str | None = Field(default=None, description="The unique assigned speaker ID for the character")
