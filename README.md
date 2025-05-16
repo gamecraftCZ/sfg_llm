@@ -13,7 +13,8 @@ Run `sfg_audibook` in terminal to invoke the CLi interface for SFG audiobook pro
 
 List available components with their arguments: `sfg_audiobook --list_components`
 
-Arguments for components are defined in [] brackets, separated by comma in format name=value.
+Arguments for components are defined in [] brackets, separated by comma in format name=value. 
+If you prepend ComponentName with '!' it will not be run (only setup will be executed).
 
 Example of pipeline to predict book A Handful of Dust from PDNC dataset and evaluate the quotation results:
 ```bash

@@ -28,7 +28,8 @@ def run_from_cli():
         choices=["custom"]  # dummy, default, default_logging
     )
     parser.add_argument("--component", action="append", metavar="ComponentName[arg1=val2,arg2=val2]",
-                        help="Specify components for custom pipeline (can be used multiple times)")
+                        help="Specify components for custom pipeline (can be used multiple times). "
+                             "If you prepend ComponentName with '!' it will not be run (only setup will be executed).")
 
     args = parser.parse_args()
 

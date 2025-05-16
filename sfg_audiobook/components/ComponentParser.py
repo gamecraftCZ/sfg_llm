@@ -17,12 +17,18 @@ class ComponentParser:
             registered_name = component_string
             args = {}
 
+        # Only setup is run if the component is prefixed with "!", otherwise it is set up and also run.
+        should_run = True
+        if registered_name[0] == "!":
+            registered_name = registered_name[1:]
+            should_run = False
+
         ComponentClass = ComponentsRegister.get_component(registered_name)
         if ComponentClass is None:
             raise ComponentParserError(
                 f"Component '{registered_name}' not found in registered components. Available components: {ComponentsRegister.get_all_components().keys()}")
 
-        component = ComponentClass(args)
+        component = ComponentClass(args, should_run=should_run)
         return component
 
     @staticmethod

@@ -21,8 +21,11 @@ class Pipeline:
 
         # Run pipeline
         for component in self.components:
-            print(f"Running component {component.get_name()} of type {component.__class__.__name__}")
-            component.run(self._data)
+            if component._should_run:
+                print(f"Running component {component.get_name()} of type {component.__class__.__name__}")
+                component.run(self._data)
+            else:
+                print(f"Skipping component {component.get_name()} of type {component.__class__.__name__}")
 
         print("PIPELINE finished.")
         # Return result

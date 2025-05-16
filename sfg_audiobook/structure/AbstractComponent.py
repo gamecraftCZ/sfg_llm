@@ -8,7 +8,7 @@ class AbstractComponent(ABC):
     Abstract component class for all components in the pipeline.
     """
 
-    def __init__(self, params: dict[str, str], name: str = None, *args, **kwargs) -> None:
+    def __init__(self, params: dict[str, str], name: str = None, should_run: bool = True, *args, **kwargs) -> None:
         """
         :param params: list of parameters for the component in {name: value} format.
                         Defined in the CLI as Component[name=val,name2=val2,...]
@@ -18,6 +18,7 @@ class AbstractComponent(ABC):
         """
         self._params = params
         self._name = name if name else self.__class__.__name__
+        self._should_run = should_run
 
     def set_name(self, new_name: str):
         self._name = new_name
