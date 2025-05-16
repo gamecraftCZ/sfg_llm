@@ -29,6 +29,7 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
         self._chunk_size = int(params.get('chunk_size', 4000))
         self._chunk_overlap = int(params.get('chunk_overlap', 256))
         self._concurrent_requests = int(params.get('concurrent_requests', 32))
+        self._ignore_errors = (params.get('ignore_errors', 'false').lower() == "true")
 
     @staticmethod
     def get_help() -> str:
@@ -144,7 +145,7 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
 
         # Ignore errors (None in text parts and stats)
         ignored_errors_count = 0
-        if self._params.get("ignore_errors", False):
+        if self._ignore_errors:
             for i in range(len(results)):
                 if results[i][0] is None:
                     ignored_errors_count += 1
@@ -153,6 +154,10 @@ class LLMQuotationAttributorComponent(AbstractStructuredLLMComponent):
                         {"prompt_tokens": 0, "completion_tokens": 0}
                     )
             print("Ignored errors count from the model: ", ignored_errors_count)
+        else:
+            none_results = [res for res in results if res[0] is None]
+            if none_results:
+                raise ValueError(f"LLM returned None for {len(none_results)} chunks. Please check the model and the prompt.")
 
         chunks_text_parts = [r[0].as_text_parts_list() for r in results]
         chunks_stats = [r[1] for r in results]
