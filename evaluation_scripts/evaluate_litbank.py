@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import traceback
 from pathlib import Path
 from typing import Any
 from tqdm import tqdm
@@ -111,34 +112,44 @@ def main():
     else:
         stats = {}
 
-    # Process book by book
-    for book in tqdm(books, desc="Processing books", unit="book"):
-        if book in stats.keys():
-            print(f"Book {book} already processed. Skipping.")
-            continue
+    try:
+        # Process book by book
+        for book in tqdm(books, desc="Processing books", unit="book"):
+            if book in stats.keys():
+                print(f"Book {book} already processed. Skipping.")
+                continue
 
-        print(f"Processing book {book}...")
+            print(f"Processing book {book}...")
 
-        pipeline_save_file = Path(f"output/attributions_litbank_book_{book}_%Y-%m-%d_%H-%M-%S.json")
-        try:
-            stat = process_book(book, args.repo_path, attributor_params, pipeline_save_file)
-            stat["attributor_params"] = args.attributor_params
-            stats[book] = stat
-        except Exception as e:
-            print("Exception while processing book:", book, e)
-            print("Skipping book because of exception above:", book)
+            pipeline_save_file = Path(f"output/attributions_litbank_book_{book}_%Y-%m-%d_%H-%M-%S.json")
+            try:
+                stat = process_book(book, args.repo_path, attributor_params, pipeline_save_file)
+                stat["attributor_params"] = args.attributor_params
+                stats[book] = stat
 
-    print("All books processed")
-    print(f"Stats: {stats}")
+                # Save stats to file to not lose the progress
+                os.makedirs(out_stats_file.parent, exist_ok=True)
+                with open(out_stats_file, "w+") as f:
+                    json.dump(stats, f, indent=2)
 
-    # Save stats to file
-    os.makedirs(out_stats_file.parent, exist_ok=True)
-    with open(out_stats_file, "w+") as f:
-        json.dump(stats, f, indent=2)
+            except Exception as e:
+                print("Exception while processing book:", book)
+                traceback.print_exc()
+                print("Skipping book because of exception above:", book)
 
-    print(f"Stats saved to {out_stats_file}")
-    print(f"Skipped books: {[book for book in books if book not in stats.keys()]}")
-    print("[DONE]")
+        print("All books processed")
+
+    finally:
+        print(f"Stats: {stats}")
+
+        # Save stats to file
+        os.makedirs(out_stats_file.parent, exist_ok=True)
+        with open(out_stats_file, "w+") as f:
+            json.dump(stats, f, indent=2)
+
+        print(f"Stats saved to {out_stats_file}")
+        print(f"Skipped books: {[book for book in books if book not in stats.keys()]}")
+        print("[DONE]")
 
 
 if __name__ == "__main__":
