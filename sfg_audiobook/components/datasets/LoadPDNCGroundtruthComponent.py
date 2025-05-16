@@ -168,6 +168,7 @@ class LoadPDNCGroundtruthComponent(AbstractComponent):
         Args:
             book_id (str): The book ID to load.
             pdnc_repo_path (Path): Path to the PDNC repository.
+            alias_character_mapping (dict[str, Character]): Mapping of all character aliases to their character object.
 
         Returns:
             list[TextPart]: List of text parts in the book.
@@ -179,31 +180,36 @@ class LoadPDNCGroundtruthComponent(AbstractComponent):
         i = 0
         with open(pdnc_repo_path / "data" / book_id / "quotation_info.csv", "r") as f:
             reader = csv.DictReader(f)
+            beg_ends_sorted = []
             for row in reader:
                 begs_ends = json.loads(row["quoteByteSpans"])
-                for beg, end in begs_ends:
-                    beg -= 1  # To include the quote mark at start
-                    end += 1  # To include the quote mark at end
-                    if beg > start:
-                        # Add text between last quote and this quote
-                        i += 1
-                        text_parts.append(TextPart(
-                            id=i,
-                            text=original_text[start:beg],
-                            type=TextPartType.OTHER,
-                            character_identifier=None
-                        ))
-                        start = beg
-
-                    # Add this quote
+                for beg_end in begs_ends:
+                    beg_ends_sorted.append((row, beg_end))
+            beg_ends_sorted = sorted(beg_ends_sorted, key=lambda x: x[1][0])  # Sort by position of beginning of the quote
+            for row, (beg, end) in beg_ends_sorted:
+                if original_text[beg-1] in ['"', "'"]: beg -= 1  # To include the quote mark at the start
+                if original_text[end] in ['"', "'"]: end += 1  # To include the quote mark at the end
+                if beg > start:
+                    # Add text between last quote and this quote
                     i += 1
                     text_parts.append(TextPart(
                         id=i,
-                        text=original_text[beg:end],
-                        type=TextPartType.QUOTE,
-                        character_identifier=alias_character_mapping[row["speaker"].lower()].identifier
+                        text=original_text[start:beg],
+                        type=TextPartType.OTHER,
+                        character_identifier=None
                     ))
-                    start = end
+                    start = beg
+
+                # Add this quote
+                beg = max(beg, start)  # Ensure beg is not in the middle of previous quote.
+                i += 1
+                text_parts.append(TextPart(
+                    id=i,
+                    text=original_text[beg:end],
+                    type=TextPartType.QUOTE,
+                    character_identifier=alias_character_mapping.get(row["speaker"].lower(), Character(name="Unknown", identifier="unknown")).identifier
+                ))
+                start = end
 
             if start < len(original_text):
                 # Add remaining text at the end
