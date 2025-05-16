@@ -1,1 +1,2 @@
 from .DummyTextToSpeechComponent import DummyTextToSpeechComponent
+from .AzureTTSComponent import AzureTTSComponent
