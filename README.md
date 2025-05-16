@@ -33,7 +33,7 @@ sfg_audibook
   --component llm_character_extractor[system_prompt_template_file=templates/character_extraction_system_prompt_complex.jinja,content_prompt_template_file=templates/character_extraction_prompt_content_1.jinja,model=gemini/gemini-2.0-flash]
   --component llm_quotation_attributor[system_prompt_template_file=templates/quotation_extraction_and_attribution_system_prompt_complex_fewshot.jinja,content_prompt_template_file=templates/quotation_extraction_and_attribution_prompt_content_1.jinja,chunk_size=4000,chunk_overlap=256,ignore_errors=True,model=gemini/gemini-2.0-flash]
   --component llm_character_to_speaker_matcher[system_prompt_template_file=templates/character_matcher_system_prompt_complex.jinja,content_prompt_template_file=templates/character_matcher_prompt_content_1.jinja,model=gemini/gemini-2.0-flash]
-  --component azure_tts[lang=en]
+  --component azure_tts[lang=en,out_file=book_voice_output.mp3]
 ```
 
 
