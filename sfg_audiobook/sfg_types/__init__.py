@@ -1,4 +1,4 @@
 from .Character import *
 from .TextPart import *
-from .TTSSpeaker import *
+from .TTSVoice import *
 from .PipelineData import *

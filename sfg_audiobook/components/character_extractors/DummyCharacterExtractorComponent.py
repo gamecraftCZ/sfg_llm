@@ -18,13 +18,13 @@ class DummyCharacterExtractorComponent(AbstractComponent):
     def run(self, data: PipelineData):
         data.characters = [
             Character(name="Anthony sr.", identifier="ANTHONY_1", type="main", gender="male",
-                      personality="warm and friendly", assigned_speaker_id=None),
+                      personality="warm and friendly", assigned_voice_id=None),
             Character(name="Little girl", identifier="LITTLE_BOY_2", type="minor", gender="female",
-                      personality="happy", assigned_speaker_id=None),
+                      personality="happy", assigned_voice_id=None),
             Character(name="Servant", identifier="SERVANT_1", type="minor", gender="unknown",
-                      personality="obedient", assigned_speaker_id=None),
+                      personality="obedient", assigned_voice_id=None),
             Character(name="Anthony jr.", identifier="ANTHONY_1", type="support", gender="male",
-                      personality="sad", assigned_speaker_id=None),
+                      personality="sad", assigned_voice_id=None),
         ]
 
 

@@ -1,0 +1,16 @@
+{# All the characters and available voices in XML #}
+<characters>{% for character in data.characters %}
+<character>
+<name>{{ character.name }}</name>
+<identifier>{{ character.identifier }}</identifier>
+<gender>{{ character.gender }}</gender>
+<personality>{{ character.personality }}</personality>
+</character>{% endfor %}
+</characters>
+<voices>{% for voice in data.available_voices %}
+<voice>
+<identifier>{{ voice.id }}</identifier>
+<gender>{{ voice.gender }}</gender>
+<description>{{ voice.description }}</description>
+</voice>{% endfor %}
+</voices>

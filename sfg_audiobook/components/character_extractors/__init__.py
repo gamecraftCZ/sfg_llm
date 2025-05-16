@@ -1,1 +1,2 @@
 from .DummyCharacterExtractorComponent import DummyCharacterExtractorComponent
+from .LLMCharacterExtractorComponent import LLMCharacterExtractorComponent

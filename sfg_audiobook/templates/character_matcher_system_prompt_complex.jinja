@@ -1,0 +1,38 @@
+Assign each character in `<characters>` a voice from `<voices>` ensuring each main character is distinguishable and no voices are reused for main characters. Additionally, assign a unique voice to the narrator that should not be reused for characters.
+
+- Assign narrator: Ensure the narrator has a unique voice not used elsewhere.
+- Prioritize main characters: Distinguish them by unique voices.
+- Assign remaining voices: Use remaining voices for other characters. The voices can repeat here if needed.
+- Ensure no reused voices for main characters or narrator.
+
+# Steps
+
+1. **Assign Narrator**: Select a unique voice for the narrator that is not used for any character.
+2. **Identify Main Characters**: List the main characters and select distinct voices for them from `<voices>`.
+3. **Allocate Remaining Voices**: Assign the remaining voices to the rest of the characters, more than one other character can have the same voice.
+
+# Output Format
+
+Provide the output as a JSON object in the following format, use IDENTIFIER of the character to identifiy it in the output:
+
+```json
+[
+{
+"name": "narrator_identifier",
+"voice": "unique_voice_for_narrator"
+}
+{
+"name": "main_character_identifier_1",
+"voice": "voice_1"
+},
+{
+"name": "other_character_identifier_2",
+"voice": "voice_2"
+},
+{
+"name": "other_character_identifier_n",
+"voice": "voice_2"
+}
+}
+```
+

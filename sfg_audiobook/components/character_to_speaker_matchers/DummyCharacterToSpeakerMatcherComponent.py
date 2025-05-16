@@ -17,8 +17,8 @@ class DummyCharacterToSpeakerMatcherComponent(AbstractComponent):
 
     def run(self, data: PipelineData):
         for character in data.characters:
-            if character.assigned_speaker_id is None:
-                character.assigned_speaker_id = data.available_speakers[0].id if len(data.available_speakers) > 0 else "default_speaker_id"
+            if character.assigned_voice_id is None:
+                character.assigned_voice_id = data.available_voices[0].id if len(data.available_voices) > 0 else "default_speaker_id"
 
 
 ComponentsRegister.register_component("dummy_character_to_speaker_matcher", DummyCharacterToSpeakerMatcherComponent)

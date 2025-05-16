@@ -1,1 +1,2 @@
 from .DummyCharacterToSpeakerMatcherComponent import DummyCharacterToSpeakerMatcherComponent
+from .LLMCharacterToSpeakerMatcherComponent import LLMCharacterToSpeakerMatcherComponent

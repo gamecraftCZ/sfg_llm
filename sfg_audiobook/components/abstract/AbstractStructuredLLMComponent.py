@@ -1,4 +1,5 @@
 import json
+import traceback
 from abc import ABC
 from time import sleep
 
@@ -125,7 +126,8 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
                 sleep(30)  # Sleep and try again
 
             except ValueError as e:
-                print(f"LLM API value error: {e}")
+                print(f"LLM API value error:")
+                traceback.print_exc()
                 return None, None
 
 
