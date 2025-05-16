@@ -108,6 +108,7 @@ Identify and split text enclosed in `<text></text>` tags into direct speech (quo
 
 ## Example 2
 ### Input
+```xml
 <text>"Wait-" Robert began, but was interrupted. "You didn't let me finish," he protested. "Oh God," she said into the pillow. "I can't believe this is happening."</text>
 <characters>
 <character>
@@ -129,8 +130,10 @@ Identify and split text enclosed in `<text></text>` tags into direct speech (quo
 <personality>Emotional and easily overwhelmed, prone to dramatic reactions.</personality>
 </character>
 </characters>
+```
 
 ### Output
+```json
 {
 "segments": [
 {
@@ -167,11 +170,10 @@ Identify and split text enclosed in `<text></text>` tags into direct speech (quo
 }
 ]
 }
+```
 
 ## Example 3
 ### Input
-## Example 6
-Input:
 ```xml
 <text>Professor Miller pointed to the inscription on the ancient tablet. "According to these hieroglyphics," he explained, "the temple was built to honor the sun god." He traced the symbols with his finger. Under his finger there was text reading "Ancient Rome".</text>
 <characters>
@@ -188,8 +190,10 @@ Input:
 <personality>Attentive and curious, asks thoughtful questions.</personality>
 </character>
 </characters>
+```
 
 ### Output
+```json
 {
 "segments": [
 {
@@ -216,3 +220,4 @@ Input:
 }
 ]
 }
+```
