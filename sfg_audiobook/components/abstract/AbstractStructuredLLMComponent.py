@@ -43,9 +43,7 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
         # Set API key
         self._api_provider = self._model.split("/")[0].lower()
         env_api_key_name = f"{self._api_provider.upper()}_API_KEY"
-        self._api_key = params.get("api_key") or os.environ.get(env_api_key_name)
-        if params.get("api_key"):
-            os.environ[env_api_key_name] = self._api_key
+        self._api_key = os.environ.get(env_api_key_name)
 
         if not self._api_key:
             if self._api_provider.lower() == "ollama":  # Ollama does not require api key
@@ -57,9 +55,9 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
     @staticmethod
     def get_attributes_help_text() -> str:
         return """\tAttribute (optional): model (str): litellm id of model to use. Default is "openai/gpt-4o-mini".
-\tAttribute (optional): api_key (str): API key for chosen . Default is `api_key=os.environ.get("OPENAI_API_KEY")`.
 \tAttribute: system_prompt_template_file (str): Path to Jinja2 template file for the system prompt, meant for instructions (Whole PipelineData available in the template file).
 \tAttribute: content_prompt_template_file (str): Path to Jinja2 template file for the prompt, meant for data.original_text (Whole PipelineData available in the template file).
+\tEnvironment variable: {PROVIDER}_API_KEY (str): API key for chosen LLM model provider.
 """
 
     def setup(self, data: PipelineData):
@@ -148,9 +146,10 @@ class AbstractStructuredLLMComponent(AbstractComponent, ABC):
             stats = {"prompt_tokens": usage.prompt_tokens, "completion_tokens": usage.completion_tokens}
             return parsed_response, stats
 
-        except json.JSONDecodeError as e:
+        except Exception as e:
             print(f"Error parsing LLM data: {e}")
-            print(f"LLM response: {res}")
+            print(f"LLM response: {json.dumps(res, indent=2)}")
+            print(f"LLM response_json: {response_json}")
             return None, None
 
 
