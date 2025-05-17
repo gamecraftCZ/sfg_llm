@@ -14,6 +14,8 @@ dependencies = [
     "numpy",
     "levenshtein",
     "google-genai",
+    "azure-cognitiveservices-speech",
+    "pydub",
     'importlib-metadata; python_version>"3.12"',
 ]
 
